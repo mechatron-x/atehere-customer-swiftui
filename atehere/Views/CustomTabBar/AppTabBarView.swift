@@ -9,18 +9,16 @@ import SwiftUI
 
 struct AppTabBarView: View {
     
-    @State private var tabSelection: TabBarItem = .confession
+    @State private var tabSelection: TabBarItem = .home
     
     var body: some View {
         CustomTabBarContainerView(selection: $tabSelection) {
-            Color.red.ignoresSafeArea(.all)
-                .tabBarItem(tab: .confession, selection: $tabSelection)
+            HomeView()
+                .tabBarItem(tab: .home, selection: $tabSelection)
             
-            Color.blue
-                .tabBarItem(tab: .classforum, selection: $tabSelection)
+            MenuView()
+                .tabBarItem(tab: .menu, selection: $tabSelection)
             
-            Color.green
-                .tabBarItem(tab: .profile, selection: $tabSelection)
         }
     }
 }

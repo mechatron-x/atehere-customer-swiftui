@@ -15,35 +15,35 @@ import SwiftUI
 //}
 
 enum TabBarItem: Hashable {
-    case confession, classforum, post, community, profile
+    case home, menu, qrScan, invoice, profile
     
     var iconName: String {
         switch self {
-        case .confession: return "house"
-        case .classforum: return "graduationcap"
-        case .post: return "plus.circle"
-        case .community: return "person.3"
+        case .home: return "house"
+        case .menu : return "fork.knife"
+        case .qrScan: return "qrcode"
+        case .invoice: return "menucard"
         case .profile: return "person"
         }
     }
     
     var title: String {
         switch self {
-        case .confession: return "Confession"
-        case .classforum: return "Class Forum"
-        case .post: return "Post"
-        case .community: return "Community"
+        case .home: return "Home"
+        case .menu: return "Menu"
+        case .qrScan: return "Scan QR"
+        case .invoice: return "Invoice"
         case .profile: return "Profile"
         }
     }
     
     var color: Color {
         switch self {
-        case .confession: return Color("KocRed")
-        case .classforum: return Color.primary
-        case .post: return Color("KocRed")
-        case .community: return Color.primary
-        case .profile: return Color("KocRed")
+        case .home: return Color("MainColor")
+        case .menu: return Color("MainColor")
+        case .qrScan: return Color("MainColor")
+        case .invoice: return Color("MainColor")
+        case .profile: return Color("MainColor")
         }
     }
 }

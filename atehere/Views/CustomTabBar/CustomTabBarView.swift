@@ -26,8 +26,8 @@ struct CustomTabBarView: View {
 struct CustomTabBarView_Previews: PreviewProvider {
     
     static let tabs: [TabBarItem] = [
-        .confession,
-        .classforum,
+        .home,
+        .invoice,
         .profile
     ]
     
@@ -76,9 +76,7 @@ extension CustomTabBarView {
     private func tabView2(tab: TabBarItem) -> some View {
         VStack {
             Image(systemName: tab.iconName)
-                .font(.subheadline)
-            Text(tab.title)
-                .font(.system(size:10, weight: .semibold, design: .rounded))
+                .font(.headline)
         }
         .foregroundColor(localSelection == tab ? tab.color : Color.gray)
         .padding(.vertical,8)
