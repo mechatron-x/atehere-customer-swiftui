@@ -11,7 +11,7 @@ import SwiftUI
 struct atehereApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
     }
 }
