@@ -17,7 +17,7 @@ struct atehereApp: App {
     
     var body: some Scene {
         WindowGroup {
-            SignupView()
+            RootView()
         }
     }
 }
