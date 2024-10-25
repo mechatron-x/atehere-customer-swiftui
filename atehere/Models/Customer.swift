@@ -7,9 +7,18 @@
 
 import Foundation
 
-struct Customer: Codable, Identifiable {
-    var id: String
-    var name: String
-    var surname: String
-    
+struct Customer: Codable {
+    var email: String
+    var password: String
+    var fullName: String
+    var gender: String?
+    var birthDate: String
+
+    enum CodingKeys: String, CodingKey {
+        case email
+        case password
+        case fullName = "full_name"
+        case gender
+        case birthDate = "birth_date"
+    }
 }
