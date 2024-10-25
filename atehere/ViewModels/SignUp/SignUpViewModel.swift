@@ -26,8 +26,6 @@ class SignUpViewModel: ObservableObject {
         dateFormatter.dateFormat = "dd-MM-yyyy"
         let birthDateString = dateFormatter.string(from: birthDate)
         
-        let genderToSend = gender ?? "Undefined"
-
         let customer = Customer(email: email, password: password, fullName: fullName, gender: gender, birthDate: birthDateString)
         
         guard let jsonData = try? JSONEncoder().encode(customer) else {
