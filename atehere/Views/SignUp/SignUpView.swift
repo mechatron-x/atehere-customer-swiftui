@@ -12,9 +12,8 @@ struct SignUpView: View {
     @State private var isPasswordVisible = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
-                // Background view (customize as needed)
                 
                 Color("MainColor").ignoresSafeArea()
 
@@ -114,7 +113,7 @@ struct SignUpView: View {
                     // Error message display
                     if let errorMessage = signUpViewModel.errorMessage {
                         Text(errorMessage)
-                            .foregroundColor(.red)
+                            .foregroundColor(.black)
                             .multilineTextAlignment(.center)
                             .padding()
                     }
@@ -144,6 +143,20 @@ struct SignUpView: View {
                     }
 
                     Spacer()
+                    
+                    HStack {
+                        Text("Already have an account?")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                        
+                        NavigationLink(destination: LoginView()) {
+                            Text("Login.")
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                                .bold()
+                        }
+                    }
+                    
                 }
                 .padding()
             }
