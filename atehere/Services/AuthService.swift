@@ -1,18 +1,17 @@
 //
-//  AuthService.swift
+//  AuthenticationService.swift
 //  atehere
 //
-//  Created by Berke Bozacı on 25.10.2024.
+//  Created by Berke Bozacı on 30.10.2024.
 //
 
 import Foundation
+import Security
 import FirebaseAuth
-import KeychainAccess
 
 class AuthService {
     static let shared = AuthService()
-    private let keychain = Keychain(service: "com.yourapp.identifier")
-    
+
     private init() {}
 
 
@@ -26,7 +25,7 @@ class AuthService {
                 completion(.failure(AuthErrorCode.userNotFound))
                 return
             }
-            self.storeIdToken(user: firebaseUser)
+            self.storeUserCredentials(user: firebaseUser)
             completion(.success(firebaseUser))
         }
     }
@@ -42,30 +41,83 @@ class AuthService {
     }
 
 
-    private func storeIdToken(user: FirebaseAuth.User) {
+    private func storeUserCredentials(user: FirebaseAuth.User) {
         user.getIDToken { token, error in
             if let token = token {
-                do {
-                    try self.keychain.set(token, key: "idToken")
-                    // print("Token stored: \(token)")
-                } catch let error {
-                    // print("Keychain error: \(error)")
-                }
+                self.storeValue(token, key: "idToken")
+                print(token)
             }
         }
     }
 
+    private func storeValue(_ value: String, key: String) {
+        guard let data = value.data(using: .utf8) else { return }
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "media.dorduncuboyut.atehere",
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data
+        ]
+
+        SecItemDelete(query as CFDictionary)
+
+        let status = SecItemAdd(query as CFDictionary, nil)
+
+        if status != errSecSuccess {
+            print("Error storing \(key) in Keychain: \(status)")
+        }
+    }
+
     func getIdToken() -> String? {
-        return try? keychain.get("idToken")
+        return getValue(forKey: "idToken")
+    }
+
+    private func getValue(forKey key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "media.dorduncuboyut.atehere",
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var item: CFTypeRef?
+
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+
+        if status == errSecSuccess {
+            if let data = item as? Data, let value = String(data: data, encoding: .utf8) {
+                return value
+            }
+        } else {
+            print("Error retrieving \(key) from Keychain: \(status)")
+        }
+
+        return nil
     }
 
     func logout(completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             try Auth.auth().signOut()
-            try keychain.remove("idToken")
+            deleteValue(forKey: "idToken")
             completion(.success(()))
         } catch let error {
             completion(.failure(error))
+        }
+    }
+
+    private func deleteValue(forKey key: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "media.dorduncuboyut.atehere",
+            kSecAttrAccount as String: key
+        ]
+
+        let status = SecItemDelete(query as CFDictionary)
+
+        if status != errSecSuccess && status != errSecItemNotFound {
+            print("Error deleting \(key) from Keychain: \(status)")
         }
     }
 }
