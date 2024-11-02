@@ -68,6 +68,8 @@ class LoginViewModel: ObservableObject {
                 self.errorMessage = "Incorrect password. Please try again."
             case .invalidEmail:
                 self.errorMessage = "Invalid email address."
+            case .userNotFound:
+                self.errorMessage = "No account found with this email."
             default:
                 self.errorMessage = "Login error: \(error.localizedDescription)"
             }
