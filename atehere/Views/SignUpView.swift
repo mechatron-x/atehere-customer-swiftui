@@ -163,12 +163,11 @@ struct SignUpView: View {
                 .onReceive(signUpViewModel.$isSignedUp) { isSignedUp in
                                     if isSignedUp {
                                         navigateToLogin = true
-                                        NavigationLink(destination: LoginView(), isActive: $navigateToLogin) {
-                                            EmptyView()
-                                        }
                                     }
                                 }
-                
+                NavigationLink(destination: LoginView(), isActive: $navigateToLogin) {
+                    EmptyView()
+                }
             }
             .navigationBarHidden(true)
         }

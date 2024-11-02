@@ -34,7 +34,7 @@ class SignUpViewModel: ObservableObject {
                     return
                 }
         
-        guard let url = URL(string: "http://127.0.0.1:8080/api/v1/customer/auth/signup") else {
+        guard let url = URL(string: "\(Config.baseURL)/api/v1/customer/auth/signup") else {
                    self.errorMessage = "Invalid URL."
                    self.isLoading = false
                    return
@@ -66,7 +66,6 @@ class SignUpViewModel: ObservableObject {
                         default:
                             self.errorMessage = "An unexpected error occurred. Please try again."
                         }
-                        self.isSignedUp = true
                     }
                 }.resume()
         
