@@ -34,7 +34,7 @@ class SignUpViewModel: ObservableObject {
                     return
                 }
         
-        guard let url = URL(string: "http://127.0.0.1:8080/api/v1/customer/auth") else {
+        guard let url = URL(string: "\(Config.baseURL)/api/v1/customer/auth/signup") else {
                    self.errorMessage = "Invalid URL."
                    self.isLoading = false
                    return
@@ -57,27 +57,15 @@ class SignUpViewModel: ObservableObject {
                                             self.errorMessage = "Invalid server response."
                                             return
                                         }
-
+                        
                         switch httpResponse.statusCode {
                         case 200...299:
                             self.isSignedUp = true
-                        case 400:
-                            self.handleErrorResponse(data: data, defaultMessage: "Bad request. Please check your input.")
-                        case 401:
-                            self.handleErrorResponse(data: data, defaultMessage: "Unauthorized access.")
-                        case 403:
-                            self.errorMessage = "Access forbidden."
-                        case 404:
-                            self.errorMessage = "Server not found. Please try again later."
-                        case 409:
-                            self.handleErrorResponse(data: data, defaultMessage: "Conflict error. Possibly the email already exists.")
-                        case 500:
-                            self.handleErrorResponse(data: data, defaultMessage: "Server error. Please try again later.")
+                        case 300...500:
+                            self.handleErrorResponse(data: data, defaultMessage: "Error has been occurred. Please try again.")
                         default:
-                            self.handleErrorResponse(data: data, defaultMessage: "An unexpected error occurred. Please try again.")
+                            self.errorMessage = "An unexpected error occurred. Please try again."
                         }
-
-                        self.isSignedUp = true
                     }
                 }.resume()
         

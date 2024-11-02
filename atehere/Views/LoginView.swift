@@ -10,6 +10,7 @@ import SwiftUI
 struct LoginView: View {
     @StateObject var loginViewModel = LoginViewModel()
     @State private var isPasswordVisible = false
+    @State private var navigateToRoot = false
     
     var body: some View {
         NavigationStack {
@@ -133,6 +134,15 @@ struct LoginView: View {
                     }
                 }
                 .padding()
+                .onReceive(loginViewModel.$isAuthenticated) { isAuthenticated in
+                                    if isAuthenticated {
+                                        navigateToRoot = true
+                                    }
+                                }
+
+                NavigationLink(destination: RootView(), isActive: $navigateToRoot) {
+                    EmptyView()
+                }
             }
             .navigationBarHidden(true)
         }

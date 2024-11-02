@@ -10,7 +10,8 @@ import SwiftUI
 struct SignUpView: View {
     @StateObject var signUpViewModel = SignUpViewModel()
     @State private var isPasswordVisible = false
-
+    @State private var navigateToLogin = false
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -159,6 +160,14 @@ struct SignUpView: View {
                     
                 }
                 .padding()
+                .onReceive(signUpViewModel.$isSignedUp) { isSignedUp in
+                                    if isSignedUp {
+                                        navigateToLogin = true
+                                    }
+                                }
+                NavigationLink(destination: LoginView(), isActive: $navigateToLogin) {
+                    EmptyView()
+                }
             }
             .navigationBarHidden(true)
         }
