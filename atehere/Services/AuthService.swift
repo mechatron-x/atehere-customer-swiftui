@@ -1,5 +1,5 @@
 //
-//  AuthenticationService.swift
+//  AuthService.swift
 //  atehere
 //
 //  Created by Berke Bozacı on 30.10.2024.
@@ -69,8 +69,20 @@ class AuthService {
         }
     }
 
-    func getIdToken() -> String? {
-        return getValue(forKey: "idToken")
+    func getIdToken(completion: @escaping (String?) -> Void) {
+        if let user = Auth.auth().currentUser {
+            user.getIDTokenForcingRefresh(false) { [weak self] idToken, error in
+                if let idToken = idToken {
+                    self?.storeValue(idToken, key: "idToken")
+                    completion(idToken)
+                } else {
+                    print("Error retrieving idToken: \(error?.localizedDescription ?? "Unknown error")")
+                    completion(nil)
+                }
+            }
+        } else {
+            completion(nil)
+        }
     }
 
     private func getValue(forKey key: String) -> String? {
