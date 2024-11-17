@@ -10,7 +10,7 @@ import Foundation
 
 
 struct Config {
-    static let environment: Environment = .production // Change to .production when needed
+    static let environment: Environment = .development // Change to .production when needed
 
     enum Environment {
         case development
