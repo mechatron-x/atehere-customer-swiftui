@@ -54,7 +54,9 @@ class HomeViewModel: ObservableObject {
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 self?.isLoading = false
-
+                
+                
+                print(error)
                 if let error = error {
                     self?.errorMessage = "Network error: \(error.localizedDescription)"
                     return
@@ -74,20 +76,21 @@ class HomeViewModel: ObservableObject {
                     do {
                         let decoder = JSONDecoder()
                         decoder.keyDecodingStrategy = .convertFromSnakeCase
-                        let response = try decoder.decode(RestaurantList.self, from: data)
-
-                        let normalizedRestaurants = response.restaurants.map { restaurant -> Restaurant in
-                            var restaurant = restaurant
-                            restaurant.workingDays = restaurant.workingDays.map { $0.lowercased() }
-                            return restaurant
-                        }
-
-                        self?.restaurants = normalizedRestaurants
-                        self?.filteredRestaurants = normalizedRestaurants
-                        self?.availableWorkingDays = response.availableWorkingDays.map { $0.lowercased() }
+                        let payload = try decoder.decode(ResponsePayload<RestaurantList>.self, from: data)
+                        print(payload)
                         
-                        self?.filterRestaurants(searchText: self?.searchText ?? "", selectedDays: self?.selectedDays ?? [])
-                        completion?()
+                        if let payloadData = payload.data {
+                            let normalizedRestaurants = payloadData.restaurants.map { restaurant -> Restaurant in
+                                var restaurant = restaurant
+                                restaurant.workingDays = restaurant.workingDays.map { $0.lowercased() }
+                                return restaurant
+                            }
+                            self?.restaurants = normalizedRestaurants
+                            self?.filteredRestaurants = normalizedRestaurants
+                            self?.availableWorkingDays = payloadData.availableWorkingDays.map { $0.lowercased() }
+                            self?.filterRestaurants(searchText: self?.searchText ?? "", selectedDays: self?.selectedDays ?? [])
+                            completion?()
+                        }
                     } catch let decodingError {
                         print("Decoding error: \(decodingError)")
                         self?.errorMessage = "Failed to parse data: \(decodingError.localizedDescription)"
