@@ -56,6 +56,8 @@ struct HomeView: View {
                             .listStyle(PlainListStyle())
                         }
                     }
+                    Spacer()
+                    
                     .navigationTitle("Restaurants")
                     .onAppear {
                         viewModel.fetchRestaurants()

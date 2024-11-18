@@ -30,6 +30,7 @@ struct RootView: View {
                     .tabBarItem(tab: .profile, selection: $tabSelection)
             }
         }
+        .navigationBarHidden(true)
     }
 }
 
