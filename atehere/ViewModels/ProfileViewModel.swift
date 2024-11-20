@@ -36,7 +36,7 @@ class ProfileViewModel: ObservableObject {
     }
 
     private func performProfileRequest(with idToken: String) {
-        guard let url = URL(string: "\(Config.baseURL)/api/v1/customer/profile") else {
+        guard let url = URL(string: "\(Config.baseURL)/api/v1/customers") else {
             DispatchQueue.main.async {
                 self.errorMessage = "Invalid URL."
                 self.isLoading = false
@@ -107,7 +107,7 @@ class ProfileViewModel: ObservableObject {
     }
 
     private func performUpdateProfileRequest(with idToken: String, profile: Profile) {
-        guard let url = URL(string: "\(Config.baseURL)/api/v1/customer/profile") else {
+        guard let url = URL(string: "\(Config.baseURL)/api/v1/customers") else {
             DispatchQueue.main.async {
                 self.errorMessage = "Invalid URL."
                 self.isLoading = false

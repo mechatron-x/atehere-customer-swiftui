@@ -55,8 +55,6 @@ class HomeViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self?.isLoading = false
                 
-                
-                print(error)
                 if let error = error {
                     self?.errorMessage = "Network error: \(error.localizedDescription)"
                     return
@@ -77,7 +75,7 @@ class HomeViewModel: ObservableObject {
                         let decoder = JSONDecoder()
                         decoder.keyDecodingStrategy = .convertFromSnakeCase
                         let payload = try decoder.decode(ResponsePayload<RestaurantList>.self, from: data)
-                        print(payload)
+                        //print(payload)
                         
                         if let payloadData = payload.data {
                             let normalizedRestaurants = payloadData.restaurants.map { restaurant -> Restaurant in
