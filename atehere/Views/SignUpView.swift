@@ -165,11 +165,11 @@ struct SignUpView: View {
                                         navigateToLogin = true
                                     }
                                 }
-                NavigationLink(destination: LoginView(), isActive: $navigateToLogin) {
-                    EmptyView()
-                }
             }
             .navigationBarHidden(true)
+            .navigationDestination(isPresented: $navigateToLogin) {
+                LoginView()
+            }
         }
     }
 }

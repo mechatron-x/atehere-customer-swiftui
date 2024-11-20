@@ -34,7 +34,7 @@ class SignUpViewModel: ObservableObject {
                     return
                 }
         
-        guard let url = URL(string: "\(Config.baseURL)/api/v1/customer/auth/signup") else {
+        guard let url = URL(string: "\(Config.baseURL)/api/v1/customers/auth/signup") else {
                    self.errorMessage = "Invalid URL."
                    self.isLoading = false
                    return

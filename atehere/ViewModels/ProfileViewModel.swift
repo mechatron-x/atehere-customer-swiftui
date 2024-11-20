@@ -36,7 +36,7 @@ class ProfileViewModel: ObservableObject {
     }
 
     private func performProfileRequest(with idToken: String) {
-        guard let url = URL(string: "\(Config.baseURL)/api/v1/customer/profile") else {
+        guard let url = URL(string: "\(Config.baseURL)/api/v1/customers") else {
             DispatchQueue.main.async {
                 self.errorMessage = "Invalid URL."
                 self.isLoading = false
@@ -58,33 +58,34 @@ class ProfileViewModel: ObservableObject {
                     return
                 }
 
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    self.errorMessage = "Invalid server response."
-                    return
-                }
-
-                switch httpResponse.statusCode {
-                case 200...299:
-                    if let data = data {
-                        do {
-                            let profile = try JSONDecoder().decode(Profile.self, from: data)
-                            self.profile = profile
-                        } catch {
-                            self.errorMessage = "Failed to get profile data."
+                
+                if let data = data {
+                    do {
+                        let payload = try JSONDecoder().decode(ResponsePayload<Profile>.self, from: data)
+                        
+                        if let payloadData = payload.data{
+                            self.profile = payloadData
                         }
-                    } else {
-                        self.errorMessage = "No data received from server."
+                        else if let payloadError = payload.error {
+                            self.errorMessage = payloadError.message
+                        }
+                        else {
+                            self.errorMessage = "An unexpected error occurred. Please try again."
+                        }
+                        
+                    } catch {
+                        self.errorMessage = "Failed to get profile data."
                     }
-                case 401:
-                    self.errorMessage = "Unauthorized. Please log in again."
-                    self.navigateToLogin = true
-                default:
-                    self.errorMessage = "An unexpected error occurred. Please try again."
                 }
+                
             }
         }.resume()
     }
+    
+    
+    
 
+    
     func updateProfile() {
         guard let profile = profile else { return }
         isLoading = true
@@ -106,7 +107,7 @@ class ProfileViewModel: ObservableObject {
     }
 
     private func performUpdateProfileRequest(with idToken: String, profile: Profile) {
-        guard let url = URL(string: "\(Config.baseURL)/api/v1/customer/profile") else {
+        guard let url = URL(string: "\(Config.baseURL)/api/v1/customers") else {
             DispatchQueue.main.async {
                 self.errorMessage = "Invalid URL."
                 self.isLoading = false
@@ -163,6 +164,9 @@ class ProfileViewModel: ObservableObject {
             self.errorMessage = defaultMessage
         }
     }
+    
+    
+
 
     func logout() {
         authService.logout { [weak self] result in
