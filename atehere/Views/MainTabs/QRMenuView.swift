@@ -8,15 +8,29 @@
 import SwiftUI
 
 struct QRMenuView: View {
-    let restaurantID: String
-        let tableID: String
-        
-        var body: some View {
-            VStack {
-                Text("Restaurant ID: \(restaurantID)")
-                Text("Table ID: \(tableID)")
-            }
-            .navigationTitle("Menu")
-        }
-}
+    @ObservedObject var viewModel: QRScanViewModel
 
+    var body: some View {
+        VStack {
+            if viewModel.isLoading {
+                ProgressView("Loading Menu...")
+            } else if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+                    .multilineTextAlignment(.center)
+                    .padding()
+            } else {
+                List {
+                    ForEach(viewModel.menus) { menu in
+                        Section(header: Text(menu.category)) {
+                            ForEach(menu.menuItems) { item in
+                                MenuItemRow(menuItem: item)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle("Menu")
+    }
+}
