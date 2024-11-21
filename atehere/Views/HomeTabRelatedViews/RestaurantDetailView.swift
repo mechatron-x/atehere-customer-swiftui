@@ -77,8 +77,6 @@ struct RestaurantDetailView: View {
             VStack(alignment: .leading) {
                 AsyncImage(url: URL(string: restaurant.imageUrl)) { phase in
                     if let image = phase.image {
-                        
-                        
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
