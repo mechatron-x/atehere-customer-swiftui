@@ -88,12 +88,13 @@ struct RestaurantDetailView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(restaurant.name)
                         .font(.largeTitle)
-                        .padding(.top)
+                        .bold()
+                        .padding(.vertical)
 
                     Text("Phone: \(restaurant.phoneNumber)")
                         .font(.body)
 
-                    Text("Working Days: \(restaurant.workingDays.joined(separator: ", "))")
+                    Text("Working Days: \(restaurant.workingDays.joined(separator: ", ").capitalized)")
                         .font(.body)
 
                 }
@@ -103,3 +104,5 @@ struct RestaurantDetailView: View {
         .navigationTitle(restaurant.name)
     }
 }
+
+

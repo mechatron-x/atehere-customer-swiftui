@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A9896FD22CCC3A75005F53E2 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = A9896FD12CCC3A75005F53E2 /* KeychainAccess */; };
 		A9AF60EF2CC6F5520015B62A /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A9AF60EE2CC6F5520015B62A /* FirebaseCore */; };
 		A9AF60F12CC6F5570015B62A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A9AF60F02CC6F5570015B62A /* FirebaseAuth */; };
 		A9AF60F32CC6F56D0015B62A /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = A9AF60F22CC6F56D0015B62A /* FirebaseDatabase */; };
@@ -37,7 +36,6 @@
 			files = (
 				A9AF60F32CC6F56D0015B62A /* FirebaseDatabase in Frameworks */,
 				A9AF60FB2CC6F5780015B62A /* FirebaseInstallations in Frameworks */,
-				A9896FD22CCC3A75005F53E2 /* KeychainAccess in Frameworks */,
 				A9AF60EF2CC6F5520015B62A /* FirebaseCore in Frameworks */,
 				A9AF60F72CC6F56D0015B62A /* FirebaseMessaging in Frameworks */,
 				A9AF60F12CC6F5570015B62A /* FirebaseAuth in Frameworks */,
@@ -102,7 +100,6 @@
 				A9AF60F82CC6F56D0015B62A /* FirebaseStorage */,
 				A9AF60FA2CC6F5780015B62A /* FirebaseInstallations */,
 				A9AF60FC2CC6F5780015B62A /* FirebaseRemoteConfig */,
-				A9896FD12CCC3A75005F53E2 /* KeychainAccess */,
 			);
 			productName = atehere;
 			productReference = A9AF60D02CC6F3880015B62A /* atehere.app */;
@@ -134,7 +131,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				A9AF60EC2CC6F5440015B62A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				A9896FD02CCC3A75005F53E2 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A9AF60D12CC6F3880015B62A /* Products */;
@@ -294,15 +290,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"atehere/Preview Content\"";
-				DEVELOPMENT_TEAM = 54DRJP37AW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -324,15 +318,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"atehere/Preview Content\"";
-				DEVELOPMENT_TEAM = 54DRJP37AW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -370,14 +362,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		A9896FD02CCC3A75005F53E2 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
 		A9AF60EC2CC6F5440015B62A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -389,11 +373,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		A9896FD12CCC3A75005F53E2 /* KeychainAccess */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A9896FD02CCC3A75005F53E2 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
-			productName = KeychainAccess;
-		};
 		A9AF60EE2CC6F5520015B62A /* FirebaseCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A9AF60EC2CC6F5440015B62A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
