@@ -95,7 +95,7 @@ struct RestaurantDetailView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 10) {
-                    
+
                     Text("Phone: \(restaurant.phoneNumber)")
                         .font(.body)
 
@@ -109,4 +109,3 @@ struct RestaurantDetailView: View {
         }
     }
 }
-
