@@ -157,63 +157,63 @@ struct ProfileView: View {
                         .padding(.trailing)
                         .padding(.horizontal)
                         
-                    
-                    
-                }
-                    
-                    Spacer()
-                    
-                    //Edit Button
-                    Button(action: {
-                        if profileViewModel.isEditing {
-                            // Save changes and exit editing mode
-                            profileViewModel.profile?.birthDate = stringFromDate(birthDate)
-                            profileViewModel.updateProfile()
-                            profileViewModel.isEditing = false
-                        } else {
-                            // Enter editing mode
-                            profileViewModel.isEditing = true
-                            // Initialize birthDate from profile.birthDate when editing starts
-                            if let birthDateString = profileViewModel.profile?.birthDate,
-                               let date = dateFromString(birthDateString) {
-                                birthDate = date
+                        Spacer()
+                        
+                        //Edit Button
+                        Button(action: {
+                            if profileViewModel.isEditing {
+                                // Save changes and exit editing mode
+                                profileViewModel.profile?.birthDate = stringFromDate(birthDate)
+                                profileViewModel.updateProfile()
+                                profileViewModel.isEditing = false
+                            } else {
+                                // Enter editing mode
+                                profileViewModel.isEditing = true
+                                // Initialize birthDate from profile.birthDate when editing starts
+                                if let birthDateString = profileViewModel.profile?.birthDate,
+                                   let date = dateFromString(birthDateString) {
+                                    birthDate = date
+                                }
+                            }
+                        }) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .foregroundColor(Color("MainColor"))
+                                    .frame(width: UIScreen.main.bounds.size.width - 60, height: 50)
+                                
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white.opacity(0.8), lineWidth: 1)
+                                    .frame(width: UIScreen.main.bounds.size.width - 60, height: 50)
+                                
+                                Text(profileViewModel.isEditing ? "Save Changes" : "Edit")
+                                    .foregroundColor(.white)
                             }
                         }
-                    }) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .foregroundColor(Color("MainColor"))
-                                .frame(width: UIScreen.main.bounds.size.width - 60, height: 50)
-                            
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white.opacity(0.8), lineWidth: 1)
-                                .frame(width: UIScreen.main.bounds.size.width - 60, height: 50)
-                            
-                            Text(profileViewModel.isEditing ? "Save Changes" : "Edit")
-                                .foregroundColor(.white)
+                        .padding()
+                        
+                        // Logout Button
+                        Button(action: {
+                            profileViewModel.logout()
+                        }) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .foregroundColor(Color.red.opacity(0.85))
+                                    .frame(width: UIScreen.main.bounds.size.width - 60, height: 50)
+                                
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white.opacity(0.8), lineWidth: 1)
+                                    .frame(width: UIScreen.main.bounds.size.width - 60, height: 50)
+                                
+                                Text("Logout")
+                                    .foregroundColor(.white)
+                            }
                         }
+                        
+                        Spacer()
+                        
+                        
+                        
                     }
-                    .padding()
-                    
-                    // Logout Button
-                    Button(action: {
-                        profileViewModel.logout()
-                    }) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .foregroundColor(Color.red.opacity(0.85))
-                                .frame(width: UIScreen.main.bounds.size.width - 60, height: 50)
-                            
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white.opacity(0.8), lineWidth: 1)
-                                .frame(width: UIScreen.main.bounds.size.width - 60, height: 50)
-                            
-                            Text("Logout")
-                                .foregroundColor(.white)
-                        }
-                    }
-                    
-                    Spacer()
                     
                     NavigationLink(destination: LoginView(), isActive: $profileViewModel.navigateToLogin) {
                         EmptyView()

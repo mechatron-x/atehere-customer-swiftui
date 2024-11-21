@@ -15,7 +15,7 @@ struct DaySelectionView: View {
         VStack(alignment: .leading) {
             Text("Select Days")
                 .font(.headline)
-                .padding(.bottom, 5)
+                .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
@@ -32,7 +32,6 @@ struct DaySelectionView: View {
                 .padding(.horizontal)
             }
         }
-        .padding()
     }
 }
 
@@ -47,7 +46,7 @@ struct DayButton: View {
                 .font(.subheadline)
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
-                .background(isSelected ? Color.blue : Color.gray.opacity(0.2))
+                .background(isSelected ? Color("MainColor") : Color.gray.opacity(0.2))
                 .foregroundColor(isSelected ? .white : .primary)
                 .cornerRadius(8)
         }
