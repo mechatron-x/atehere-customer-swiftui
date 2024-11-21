@@ -15,7 +15,7 @@ struct DaySelectionView: View {
         VStack(alignment: .leading) {
             Text("Select Days")
                 .font(.headline)
-                .padding(.bottom, 5)
+                .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
@@ -32,7 +32,6 @@ struct DaySelectionView: View {
                 .padding(.horizontal)
             }
         }
-        .padding()
     }
 }
 

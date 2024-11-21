@@ -68,12 +68,23 @@ struct RestaurantDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
+                Text(restaurant.name)
+                    .font(.title)
+                    .bold()
+                    .padding(.top)
+            }
+            
+            VStack(alignment: .leading) {
                 AsyncImage(url: URL(string: restaurant.imageUrl)) { phase in
                     if let image = phase.image {
+                        
+                        
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: UIScreen.main.bounds.width - 16)
+                            .cornerRadius(8)
+                        
                     } else if phase.error != nil {
                         Image(systemName: "photo")
                             .resizable()
@@ -86,20 +97,18 @@ struct RestaurantDetailView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(restaurant.name)
-                        .font(.largeTitle)
-                        .padding(.top)
-
+                    
                     Text("Phone: \(restaurant.phoneNumber)")
                         .font(.body)
 
-                    Text("Working Days: \(restaurant.workingDays.joined(separator: ", "))")
+                    Text("Working Days: \(restaurant.workingDays.joined(separator: ", ").capitalized)")
                         .font(.body)
 
                 }
-                .padding()
+                .padding(.horizontal)
+                .padding(.top)
             }
         }
-        .navigationTitle(restaurant.name)
     }
 }
+
