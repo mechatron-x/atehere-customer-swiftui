@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct InactiveQRMenuView: View {
+    @EnvironmentObject var tabSelectionManager: TabSelectionManager
+    
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 16) {
@@ -19,8 +21,24 @@ struct InactiveQRMenuView: View {
                 Text("Scan a QR to access the restaurant menu.")
                     .font(.title3)
                 
-                // NavigationLink directly styled as a button
-                NavigationLink(destination: QRScanView()) {
+                
+                /*
+                 // NavigationLink directly styled as a button
+                 NavigationLink(destination: QRScanView()) {
+                 Text("Scan a QR")
+                 .font(.headline)
+                 .foregroundColor(.white)
+                 .padding()
+                 .frame(maxWidth: .infinity)
+                 .background(Color("MainColor"))
+                 .cornerRadius(8)
+                 }
+                 .padding(.top, 8)
+                 */
+                
+                Button(action: {
+                    tabSelectionManager.tabSelection = .qrScan
+                }) {
                     Text("Scan a QR")
                         .font(.headline)
                         .foregroundColor(.white)
@@ -30,6 +48,9 @@ struct InactiveQRMenuView: View {
                         .cornerRadius(8)
                 }
                 .padding(.top, 8)
+                
+                
+                
             }
             .padding()
             .background(
