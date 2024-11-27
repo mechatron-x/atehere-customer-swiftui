@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct QRMenuView: View {
-    @ObservedObject var viewModel: QRScanViewModel
+    @ObservedObject var viewModel: QRScanViewModel = QRScanViewModel()
 
     var body: some View {
         VStack {
@@ -20,17 +20,8 @@ struct QRMenuView: View {
                     .multilineTextAlignment(.center)
                     .padding()
             } else {
-                List {
-                    ForEach(viewModel.menus) { menu in
-                        Section(header: Text(menu.category)) {
-                            ForEach(menu.menuItems) { item in
-                                MenuItemRow(menuItem: item)
-                            }
-                        }
-                    }
-                }
+                ActiveMenuView(viewModel: viewModel)
             }
         }
-        .navigationTitle("Menu")
     }
 }
