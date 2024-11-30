@@ -19,9 +19,16 @@ struct QRMenuView: View {
                     .foregroundColor(.red)
                     .multilineTextAlignment(.center)
                     .padding()
-            } else {
-                ActiveMenuView(viewModel: viewModel)
             }
+            if let qrCodeData = viewModel.qrCodeData {
+                ActiveMenuView(qrCodeData: qrCodeData)
+            } else {
+                Text("Invalid QR Code Data")
+                    .foregroundColor(.red)
+                    .padding()
+            }
+
+            
         }
     }
 }

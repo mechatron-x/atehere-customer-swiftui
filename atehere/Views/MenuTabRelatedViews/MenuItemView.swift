@@ -9,42 +9,33 @@ import SwiftUI
 
 struct MenuItemView: View {
     let menuItem: MenuItem
+    var addToCartAction: () -> Void
 
     var body: some View {
         HStack(alignment: .top) {
-            // Text and Details Section
             VStack(alignment: .leading, spacing: 8) {
-                // Title
                 Text(menuItem.name)
                     .font(.headline)
                     .bold()
                     .lineLimit(1)
                     .truncationMode(.tail)
 
-                // Description
                 Text(menuItem.description)
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .lineLimit(2)
                     .truncationMode(.tail)
 
-                // Price and Add Button
                 HStack {
-                    // Add Button
-                    Button(action: {
-                        // Add to cart action
-                    }) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 5)
-                                .fill(Color.black)
-                                .frame(width: 30, height: 30)
-
-                            Image(systemName: "plus")
-                                .foregroundColor(.white)
-                        }
+                    Button(action: addToCartAction) {
+                        Text("Add to Cart")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .padding(8)
+                            .background(Color.blue)
+                            .cornerRadius(8)
                     }
 
-                    // Price
                     Text("\(menuItem.price.amount, specifier: "%.2f") \(menuItem.price.currency)")
                         .font(.headline)
                         .bold()
@@ -56,7 +47,6 @@ struct MenuItemView: View {
 
             Spacer()
 
-            // Image Section
             if let imageUrl = menuItem.imageUrl,
                let url = URL(string: imageUrl) {
                 AsyncImage(url: url) { image in
@@ -69,7 +59,6 @@ struct MenuItemView: View {
                         .frame(width: 100, height: 100)
                 }
             } else {
-                // Placeholder Image
                 Image(systemName: "photo")
                     .resizable()
                     .foregroundColor(.gray)
