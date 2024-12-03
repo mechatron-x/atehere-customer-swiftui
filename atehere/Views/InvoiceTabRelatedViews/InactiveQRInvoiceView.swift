@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct InactiveQRInvoiceView: View {
+    @EnvironmentObject var tabSelectionManager: TabSelectionManager
+    
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 16) {
@@ -19,8 +21,9 @@ struct InactiveQRInvoiceView: View {
                 Text("Go to the restaurant menu to order some delicious foods.")
                     .font(.title3)
                 
-                // NavigationLink directly styled as a button
-                NavigationLink(destination: MenuView()) {
+                Button(action: {
+                    tabSelectionManager.tabSelection = .qrScan
+                }) {
                     Text("Go To Menu")
                         .font(.headline)
                         .foregroundColor(.white)

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RootView: View {
     @StateObject var tabSelectionManager = TabSelectionManager()
+    @StateObject var qrViewModel =  QRScanViewModel()
     
     var body: some View {
         ZStack{
@@ -31,6 +32,7 @@ struct RootView: View {
         }
         .navigationBarHidden(true)
         .environmentObject(tabSelectionManager) // Inject into environment
+        .environmentObject(qrViewModel)
     }
 }
 

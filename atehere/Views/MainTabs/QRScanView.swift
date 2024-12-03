@@ -9,8 +9,9 @@ import SwiftUI
 import VisionKit
 
 struct QRScanView: View {
-    @StateObject private var viewModel = QRScanViewModel()
+    @EnvironmentObject var viewModel: QRScanViewModel
     @State var isShowingScanner = true
+    @EnvironmentObject var tabSelectionManager: TabSelectionManager
 
     var body: some View {
         NavigationView {
@@ -30,14 +31,9 @@ struct QRScanView: View {
             }
             .navigationTitle("Scan QR Code")
             .navigationBarTitleDisplayMode(.inline)
-            .background(
-                NavigationLink(
-                    destination: QRMenuView(viewModel: viewModel),
-                    isActive: $viewModel.navigateToMenu
-                ) {
-                    EmptyView()
-                }
-            )
+            .onChange(of: viewModel.navigateToMenu, { oldValue, newValue in
+                tabSelectionManager.tabSelection = .menu
+            })
             .alert(isPresented: $viewModel.showAlert) {
                 Alert(title: Text("Invalid QR Code"),
                       message: Text("The scanned QR code is invalid or not in the correct format."),
