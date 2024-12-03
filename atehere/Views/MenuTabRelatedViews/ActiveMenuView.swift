@@ -8,21 +8,33 @@
 import SwiftUI
 
 struct ActiveMenuView: View {
-    @ObservedObject var viewModel: QRScanViewModel = QRScanViewModel()
+    let qrCodeData: QRCodeData
+
+    @StateObject private var menuViewModel: MenuViewModel
+    @StateObject private var cartViewModel: CartViewModel
     @State private var selectedMenuIndex: Int = 0
+    @State private var showingCart = false
+    @State private var showingAddToCart = false
+    @State private var selectedMenuItem: MenuItem?
+
+    init(qrCodeData: QRCodeData) {
+        self.qrCodeData = qrCodeData
+        _menuViewModel = StateObject(wrappedValue: MenuViewModel(restaurantID: qrCodeData.restaurantID))
+        _cartViewModel = StateObject(wrappedValue: CartViewModel(tableID: qrCodeData.tableID))
+    }
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             VStack {
-                // Header with Restaurant Name and Cart Button
                 HStack {
+                    // TODO: Add Restaurant Name From ViewModel
                     Text("Restaurant Name")
                         .font(.largeTitle.bold())
 
                     Spacer()
 
                     Button {
-                        // TODO: Cart action
+                        showingCart = true
                     } label: {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
@@ -37,49 +49,59 @@ struct ActiveMenuView: View {
                 }
                 .padding(.horizontal)
 
-                // Picker for Menu Categories
-                Picker("Menu", selection: $selectedMenuIndex) {
-                    ForEach(viewModel.menus.indices, id: \.self) { index in
-                        Text(viewModel.menus[index].category.capitalized)
-                            .tag(index)
+                if !menuViewModel.menus.isEmpty {
+                    Picker("Menu", selection: $selectedMenuIndex) {
+                        ForEach(menuViewModel.menus.indices, id: \.self) { index in
+                            Text(menuViewModel.menus[index].category.capitalized)
+                                .tag(index)
+                        }
                     }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.horizontal)
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(.horizontal)
 
-                // Selected Menu Category Title
                 HStack {
-                    Text(viewModel.menus[selectedMenuIndex].category)
-                        .font(.title2)
-                        .bold()
-
+                    if !menuViewModel.menus.isEmpty {
+                        Text(menuViewModel.menus[selectedMenuIndex].category)
+                            .font(.title2)
+                            .bold()
+                    }
                     Spacer()
                 }
                 .padding()
 
                 Divider()
 
-                // Menu Items List
-                ScrollView {
-                    VStack {
-                        ForEach(viewModel.menus[selectedMenuIndex].menuItems) { item in
-                            MenuItemView(menuItem: item)
+                if menuViewModel.isLoading {
+                    ProgressView("Loading Menu...")
+                } else if let errorMessage = menuViewModel.errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                } else {
+                    ScrollView {
+                        VStack {
+                            ForEach(menuViewModel.menus[selectedMenuIndex].menuItems ?? []) { item in
+                                MenuItemView(menuItem: item) {
+                                    selectedMenuItem = item
+                                    showingAddToCart = true
+                                }
+                            }
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
                 }
-
-                Spacer()
             }
-            .onAppear {
-                // Fetch menu data if not already fetched
-                if viewModel.menus.isEmpty {
-                    if let restaurantID = viewModel.qrCodeData?.restaurantID {
-                        viewModel.fetchMenu(restaurantID: restaurantID)
-                    }
-                }
+            .navigationTitle("Menu")
+            .sheet(isPresented: $showingCart) {
+                CartView(cartViewModel: cartViewModel, menuViewModel: menuViewModel)
+            }
+            .sheet(item: $selectedMenuItem) { menuItem in
+                AddToCartView(menuItem: menuItem, cartViewModel: cartViewModel)
             }
         }
     }
 }
+
 

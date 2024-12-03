@@ -8,11 +8,13 @@
 import SwiftUI
 
 struct MenuView: View {
+    @EnvironmentObject var qrViewModel: QRScanViewModel
+    
     var body: some View {
-        InactiveQRMenuView()
+        if let qrCodeData = qrViewModel.qrCodeData {
+            ActiveMenuView(qrCodeData: qrCodeData)
+        } else {
+            InactiveQRMenuView()
+        }
     }
-}
-
-#Preview {
-    MenuView()
 }
