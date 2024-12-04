@@ -10,7 +10,9 @@ import SwiftUI
 struct ActiveInvoiceView: View {
     let qrCodeData: QRCodeData
     @StateObject private var invoiceViewModel: InvoiceViewModel
-    
+    @EnvironmentObject var tabSelectionManager: TabSelectionManager
+    @EnvironmentObject var qrViewModel: QRScanViewModel
+
         
     init(qrCodeData: QRCodeData) {
         self.qrCodeData = qrCodeData
@@ -58,8 +60,21 @@ struct ActiveInvoiceView: View {
                 invoiceViewModel.errorMessage = "Table ID is missing."
             }
         }
+        .onReceive(tabSelectionManager.$tabSelection) { newSelection in
+                    if newSelection == .invoice {
+                        fetchOrdersIfNeeded()
+                    }
+                }
         
     }
+    private func fetchOrdersIfNeeded() {
+           if let tableID = qrViewModel.qrCodeData?.tableID, !tableID.isEmpty {
+               invoiceViewModel.tableID = tableID
+               invoiceViewModel.fetchOrders()
+           } else {
+               invoiceViewModel.errorMessage = "Table ID is missing."
+           }
+       }
     
 
 }
