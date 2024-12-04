@@ -19,8 +19,8 @@ struct ActiveMenuView: View {
 
     init(qrCodeData: QRCodeData) {
         self.qrCodeData = qrCodeData
-        _menuViewModel = StateObject(wrappedValue: MenuViewModel(restaurantID: qrCodeData.restaurantID))
-        _cartViewModel = StateObject(wrappedValue: CartViewModel(tableID: qrCodeData.tableID))
+        _menuViewModel = StateObject(wrappedValue: MenuViewModel(restaurantID: qrCodeData.restaurantID ?? ""))
+        _cartViewModel = StateObject(wrappedValue: CartViewModel(tableID: qrCodeData.tableID ?? ""))
     }
 
     var body: some View {

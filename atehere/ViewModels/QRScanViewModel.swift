@@ -22,6 +22,7 @@ class QRScanViewModel: ObservableObject {
         if let qrCodeData = parseQRCodeData(from: text) {
             self.qrCodeData = qrCodeData
             saveQRCodeData(qrCodeData)
+
             navigateToMenu = true
             errorMessage = nil
         } else {
@@ -45,8 +46,10 @@ class QRScanViewModel: ObservableObject {
         UserDefaults.standard.set(qrCodeData.restaurantID, forKey: "restaurantID")
         UserDefaults.standard.set(qrCodeData.tableID, forKey: "tableID")
     }
-    ////    private func getQRCodeDataFromUserDefaults(){
-    ////        let restaurantID = UserDefaults.standard.string(forKey: "restaurantID")
-    ////        let tableID = UserDefaults.standard.string(forKey: "tableID")
-    ////    }
+    
+    private func getQRCodeDataFromUserDefaults(){
+        let returnQR: QRCodeData?
+        let restaurantID = UserDefaults.standard.string(forKey: "restaurantID")
+        let tableID = UserDefaults.standard.string(forKey: "tableID")
+    }
 }

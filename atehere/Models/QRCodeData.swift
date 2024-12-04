@@ -7,8 +7,8 @@
 
 import Foundation
 struct QRCodeData: Codable, Equatable {
-    let tableID: String
-    let restaurantID: String
+    let tableID: String?
+    let restaurantID: String?
 
     enum CodingKeys: String, CodingKey {
         case tableID = "table_id"
