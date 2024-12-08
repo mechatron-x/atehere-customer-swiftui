@@ -10,6 +10,9 @@ import SwiftUI
 
 class InvoiceViewModel: ObservableObject {
     @Published var orderItems: [OrderItem] = []
+    @Published var tableOrderItems: [TableOrderItem] = []
+    @Published var tableTotalPrice: Double = 0.0
+    @Published var tableCurrency: String = ""
     @Published var isLoading = false
     @Published var errorMessage: String?
 
@@ -19,71 +22,145 @@ class InvoiceViewModel: ObservableObject {
         self.tableID = tableID
     }
 
-    func fetchOrders() {
-        
+    func fetchAllOrders() {
+        self.isLoading = true
+        self.errorMessage = nil
+
+        let group = DispatchGroup()
+        var localError: String?
+
+        group.enter()
+        fetchCustomerOrders { success, message in
+            if !success {
+                localError = message
+            }
+            group.leave()
+        }
+
+        group.enter()
+        fetchTableOrders { success, message in
+            if !success {
+                localError = message
+            }
+            group.leave()
+        }
+
+        group.notify(queue: .main) {
+            self.isLoading = false
+            if let localError = localError {
+                self.errorMessage = localError
+            }
+        }
+    }
+
+    private func fetchCustomerOrders(completion: @escaping (Bool, String?) -> Void) {
         guard !tableID.isEmpty else {
-            self.errorMessage = "Table ID is missing."
+            completion(false, "Table ID is missing.")
             return
         }
-        
-
-        isLoading = true
-        errorMessage = nil
 
         guard let url = URL(string: "\(Config.baseURL)/api/v1/tables/\(tableID)/customers/orders") else {
-            self.errorMessage = "Invalid URL."
-            self.isLoading = false
+            completion(false, "Invalid URL.")
             return
         }
-        
-        
 
-        AuthService.shared.getIdToken { [weak self] token in
-            guard let self = self else { return }
-            guard let bearerToken = token else {
-                DispatchQueue.main.async {
-                    self.errorMessage = "Failed to retrieve bearer token."
-                    self.isLoading = false
+        AuthService.shared.getIdToken { token in
+            DispatchQueue.main.async {
+                guard let bearerToken = token else {
+                    completion(false, "Failed to retrieve bearer token.")
+                    return
                 }
-                return
-            }
-            
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
 
-            
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                DispatchQueue.main.async {
-                    self.isLoading = false
+                var request = URLRequest(url: url)
+                request.httpMethod = "GET"
+                request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
 
-                    if let error = error {
-                        self.errorMessage = "Network error: \(error.localizedDescription)"
-                        return
-                    }
-
-                    guard let data = data else {
-                        self.errorMessage = "No data received from server."
-                        return
-                    }
-
-                    do {
-                        let decoder = JSONDecoder()
-                        let payload = try decoder.decode(ResponsePayload<Invoice>.self, from: data)
-
-                        if let payloadData = payload.data {
-                            self.orderItems = payloadData.orders
-                        } else if let payloadError = payload.error {
-                            self.errorMessage = payloadError.message
-                        } else {
-                            self.errorMessage = "Failed to load menu."
+                URLSession.shared.dataTask(with: request) { data, response, error in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            completion(false, "Network error: \(error.localizedDescription)")
+                            return
                         }
-                    } catch {
-                        self.errorMessage = "Failed to parse menu data."
-                        print("Decoding error: \(error)")
+
+                        guard let data = data else {
+                            completion(false, "No data received from server.")
+                            return
+                        }
+
+                        do {
+                            let decoder = JSONDecoder()
+                            let payload = try decoder.decode(ResponsePayload<Invoice>.self, from: data)
+                            if let payloadData = payload.data {
+                                self.orderItems = payloadData.orders
+                                completion(true, nil)
+                            } else if let payloadError = payload.error {
+                                completion(false, payloadError.message)
+                            } else {
+                                completion(false, "Failed to load customer orders.")
+                            }
+                        } catch {
+                            completion(false, "Failed to parse customer orders.")
+                        }
                     }
+                }.resume()
+            }
+        }
+    }
+
+    private func fetchTableOrders(completion: @escaping (Bool, String?) -> Void) {
+        guard !tableID.isEmpty else {
+            completion(false, "Table ID is missing.")
+            return
+        }
+
+        guard let url = URL(string: "\(Config.baseURL)/api/v1/tables/\(tableID)/orders") else {
+            completion(false, "Invalid URL.")
+            return
+        }
+
+        AuthService.shared.getIdToken { token in
+            DispatchQueue.main.async {
+                guard let bearerToken = token else {
+                    completion(false, "Failed to retrieve bearer token.")
+                    return
                 }
-            }.resume()
+
+                var request = URLRequest(url: url)
+                request.httpMethod = "GET"
+                request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+
+                URLSession.shared.dataTask(with: request) { data, response, error in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            completion(false, "Network error: \(error.localizedDescription)")
+                            return
+                        }
+
+                        guard let data = data else {
+                            completion(false, "No data received from server.")
+                            return
+                        }
+
+                        do {
+                            let decoder = JSONDecoder()
+                            let payload = try decoder.decode(ResponsePayload<TableOrders>.self, from: data)
+                            if let tableData = payload.data {
+                                self.tableOrderItems = tableData.orders
+                                self.tableTotalPrice = tableData.totalPrice
+                                self.tableCurrency = tableData.currency
+                                completion(true, nil)
+                            } else if let payloadError = payload.error {
+                                completion(false, payloadError.message)
+                            } else {
+                                completion(false, "Failed to load table orders.")
+                            }
+                        } catch {
+                            completion(false, "Failed to parse table orders.")
+                        }
+                    }
+                }.resume()
+            }
         }
     }
 }
+
