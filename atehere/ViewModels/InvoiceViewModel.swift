@@ -59,7 +59,7 @@ class InvoiceViewModel: ObservableObject {
             return
         }
 
-        guard let url = URL(string: "\(Config.baseURL)/api/v1/tables/\(tableID)/customers/orders") else {
+        guard let url = URL(string: "\(Config.baseURL)/api/v1/tables/\(tableID)/orders?role=customer") else {
             completion(false, "Invalid URL.")
             return
         }

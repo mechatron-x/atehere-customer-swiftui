@@ -33,7 +33,7 @@ class CartViewModel: ObservableObject {
                 return
             }
 
-            guard let url = URL(string: "\(Config.baseURL)/api/v1/tables/\(tableID)/orders") else {
+            guard let url = URL(string: "\(Config.baseURL)/api/v1/tables/\(tableID)/order") else {
                 completion(false, "Invalid URL.")
                 return
             }
@@ -55,7 +55,7 @@ class CartViewModel: ObservableObject {
                     }
 
                     var request = URLRequest(url: url)
-                    request.httpMethod = "PUT"
+                    request.httpMethod = "POST"
                     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                     request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
                     request.httpBody = jsonData

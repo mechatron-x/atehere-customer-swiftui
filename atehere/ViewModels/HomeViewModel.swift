@@ -33,7 +33,7 @@ class HomeViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        guard let url = URL(string: "\(Config.baseURL)/api/v1/restaurants") else {
+        guard let url = URL(string: "\(Config.baseURL)/api/v1/customers/restaurants") else {
             self.errorMessage = "Invalid URL."
             self.isLoading = false
             return
