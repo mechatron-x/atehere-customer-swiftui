@@ -22,7 +22,7 @@ struct InactiveQRInvoiceView: View {
                     .font(.title3)
                 
                 Button(action: {
-                    tabSelectionManager.tabSelection = .qrScan
+                    tabSelectionManager.tabSelection = .menu
                 }) {
                     Text("Go To Menu")
                         .font(.headline)

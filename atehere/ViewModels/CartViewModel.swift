@@ -26,101 +26,67 @@ class CartViewModel: ObservableObject {
             cartItems.append(cartItem)
         }
     }
-
-    func submitOrder(completion: @escaping (Bool, String?) -> Void) {
-        guard !cartItems.isEmpty else {
-            completion(false, "Cart is empty.")
-            return
-        }
-
-        let dispatchGroup = DispatchGroup()
-        var errors: [String] = []
-
-        for cartItem in cartItems {
-            dispatchGroup.enter()
-
-            submitCartItem(cartItem) { success, errorMessage in
-                if !success {
-                    if let errorMessage = errorMessage {
-                        errors.append(errorMessage)
-                    } else {
-                        errors.append("Unknown error occurred while submitting cart item.")
-                    }
-                }
-                dispatchGroup.leave()
-            }
-        }
-
-        dispatchGroup.notify(queue: .main) {
-            if errors.isEmpty {
-                self.cartItems.removeAll()
-                completion(true, nil)
-            } else {
-                completion(false, errors.joined(separator: "\n"))
-            }
-        }
-    }
-
-    private func submitCartItem(_ cartItem: CartItem, completion: @escaping (Bool, String?) -> Void) {
-        AuthService.shared.getIdToken { [weak self] token in
-            guard let self = self else { return }
-            guard let bearerToken = token else {
-                DispatchQueue.main.async {
-                    completion(false, "Failed to retrieve bearer token.")
-                }
-                return
-            }
             
-
-            guard let url = URL(string: "\(Config.baseURL)/api/v1/tables/\(self.tableID)/orders") else {
-                DispatchQueue.main.async {
-                    completion(false, "Invalid URL.")
-                }
+    func submitOrder(completion: @escaping (Bool, String?) -> Void) {
+            guard !cartItems.isEmpty else {
+                completion(false, "Cart is empty.")
                 return
             }
 
-            let orderData: [String: Any] = [
-                "menu_item_id": cartItem.menuItemId,
-                "quantity": cartItem.quantity
-            ]
-
-            guard let jsonData = try? JSONSerialization.data(withJSONObject: orderData, options: []) else {
-                DispatchQueue.main.async {
-                    completion(false, "Failed to encode order data.")
-                }
+            guard let url = URL(string: "\(Config.baseURL)/api/v1/tables/\(tableID)/order") else {
+                completion(false, "Invalid URL.")
                 return
             }
+        
+            let orderItems = cartItems.map { ["menu_item_id": $0.menuItemId, "quantity": $0.quantity] }
+            let requestBody: [String: Any] = ["orders": orderItems]
 
-            var request = URLRequest(url: url)
-            request.httpMethod = "PUT"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-            request.httpBody = jsonData
-
-            URLSession.shared.dataTask(with: request) { data, response, error in
+            AuthService.shared.getIdToken { [weak self] token in
                 DispatchQueue.main.async {
-                    if let error = error {
-                        completion(false, "Network error: \(error.localizedDescription)")
+                    guard let self = self else { return }
+                    guard let bearerToken = token else {
+                        completion(false, "Failed to retrieve bearer token.")
                         return
                     }
 
-                    guard let httpResponse = response as? HTTPURLResponse else {
-                        completion(false, "Invalid server response.")
+                    guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody, options: []) else {
+                        completion(false, "Failed to encode order data.")
                         return
                     }
 
+                    var request = URLRequest(url: url)
+                    request.httpMethod = "POST"
+                    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                    request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+                    request.httpBody = jsonData
 
-                    if (200...299).contains(httpResponse.statusCode) {
-                        completion(true, nil)
-                    } else {
-                        if let data = data, let serverError = try? JSONDecoder().decode(ServerError.self, from: data) {
-                            completion(false, serverError.message)
-                        } else {
-                            completion(false, "Failed to submit order.")
+                    URLSession.shared.dataTask(with: request) { data, response, error in
+                        DispatchQueue.main.async {
+                            if let error = error {
+                                completion(false, "Network error: \(error.localizedDescription)")
+                                return
+                            }
+
+                            guard let httpResponse = response as? HTTPURLResponse else {
+                                completion(false, "Invalid server response.")
+                                return
+                            }
+
+                            if (200...299).contains(httpResponse.statusCode) {
+                                self.cartItems.removeAll()
+                                completion(true, nil)
+                            } else {
+                                if let data = data,
+                                   let serverError = try? JSONDecoder().decode(ServerError.self, from: data) {
+                                    completion(false, serverError.message)
+                                } else {
+                                    completion(false, "Failed to submit order.")
+                                }
+                            }
                         }
-                    }
+                    }.resume()
                 }
-            }.resume()
+            }
         }
-    }
+    
 }

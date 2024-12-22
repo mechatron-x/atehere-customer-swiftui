@@ -16,23 +16,48 @@ struct CartView: View {
 
     var body: some View {
         NavigationView {
-            VStack {
-                if cartViewModel.cartItems.isEmpty {
-                    Text("Your cart is empty.")
-                        .font(.headline)
-                        .padding()
-                } else {
-                    List {
-                        ForEach(cartViewModel.cartItems) { cartItem in
-                            HStack {
-                                Text(getMenuItemName(by: cartItem.menuItemId))
-                                Spacer()
-                                Text("Quantity: \(cartItem.quantity)")
-                            }
-                        }
-                        .onDelete(perform: deleteItems)
-                    }
+            VStack(alignment: .leading) {
+                // Title
+                Text("Your Cart")
+                    .font(.largeTitle.bold())
+                    .padding(.horizontal)
+                    .padding(.top)
 
+                if cartViewModel.cartItems.isEmpty {
+                    Spacer()
+                    VStack {
+                        Text("Your cart is empty.")
+                            .font(.headline)
+                            .padding(.bottom, 4)
+                        Text("Go to the menu to order some delicious foods.")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    Spacer()
+                } else {
+                    ScrollView {
+                        ForEach(cartViewModel.cartItems) { cartItem in
+                            let menuItem = findMenuItem(by: cartItem.menuItemId)
+                            CartItemRowView(
+                                cartItem: cartItem,
+                                menuItem: menuItem,
+                                onDelete: {
+                                    deleteItem(item: cartItem)
+                                },
+                                onQuantityChange: { newQuantity in
+                                    updateQuantity(for: cartItem, quantity: newQuantity)
+                                }
+                            )
+                            .padding(.horizontal)
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
+
+                Spacer()
+
+                if !cartViewModel.cartItems.isEmpty {
                     Button(action: {
                         cartViewModel.submitOrder { success, message in
                             if success {
@@ -51,33 +76,48 @@ struct CartView: View {
                             .background(Color.green)
                             .cornerRadius(10)
                     }
-                    .padding()
+                    .padding(.horizontal)
                 }
             }
-            .navigationTitle("Your Cart")
+            .navigationTitle("Cart")
+            .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(trailing: Button("Done") {
                 presentationMode.wrappedValue.dismiss()
             })
             .alert(isPresented: $showingConfirmation) {
-                Alert(title: Text("Order Status"), message: Text(confirmationMessage), dismissButton: .default(Text("OK"), action: {
+                Alert(title: Text("Order Status"),
+                      message: Text(confirmationMessage),
+                      dismissButton: .default(Text("OK"), action: {
                     if confirmationMessage == "Your order has been submitted!" {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }))
             }
+            .background(Color.gray.opacity(0.1).edgesIgnoringSafeArea(.all))
         }
     }
 
-    func getMenuItemName(by id: String) -> String {
+    // MARK: - Helper Methods
+
+    private func findMenuItem(by id: String) -> MenuItem? {
+        // Search through all menus in menuViewModel
         for menu in menuViewModel.menus {
             if let item = menu.menuItems.first(where: { $0.id == id }) {
-                return item.name
+                return item
             }
         }
-        return "Unknown Item"
+        return nil
     }
 
-    func deleteItems(at offsets: IndexSet) {
-        cartViewModel.cartItems.remove(atOffsets: offsets)
+    private func deleteItem(item: CartItem) {
+        if let index = cartViewModel.cartItems.firstIndex(where: { $0.menuItemId == item.menuItemId }) {
+            cartViewModel.cartItems.remove(at: index)
+        }
+    }
+
+    private func updateQuantity(for item: CartItem, quantity: Int) {
+        if let index = cartViewModel.cartItems.firstIndex(where: { $0.menuItemId == item.menuItemId }) {
+            cartViewModel.cartItems[index].quantity = quantity
+        }
     }
 }
