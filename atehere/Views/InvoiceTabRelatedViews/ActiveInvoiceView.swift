@@ -13,6 +13,10 @@ struct ActiveInvoiceView: View {
     @EnvironmentObject var tabSelectionManager: TabSelectionManager
     @EnvironmentObject var qrViewModel: QRScanViewModel
 
+
+    @State private var showingBillingSheet = false
+    @StateObject private var billViewModel = BillViewModel()
+
     init(qrCodeData: QRCodeData) {
         self.qrCodeData = qrCodeData
         _invoiceViewModel = StateObject(wrappedValue: InvoiceViewModel(tableID: qrCodeData.tableID ?? ""))
@@ -75,17 +79,17 @@ struct ActiveInvoiceView: View {
                                     grouping: invoiceViewModel.tableOrderItems,
                                     by: { $0.customerFullName }
                                 )
-
+                                
                                 ForEach(Array(groupedByCustomer.keys), id: \.self) { customerName in
                                     // Customer Name Heading
                                     Text(customerName)
                                         .font(.title3)
                                         .bold()
                                         .padding(.top, 8)
-
+                                    
                                     let customerOrders = groupedByCustomer[customerName]!
                                     let customerTotal = customerOrders.reduce(0.0) { $0 + $1.totalPrice }
-
+                                    
                                     // Orders for this customer
                                     ForEach(customerOrders) { order in
                                         VStack(alignment: .leading, spacing: 4) {
@@ -93,17 +97,17 @@ struct ActiveInvoiceView: View {
                                                 Text(order.menuItemName)
                                                     .font(.headline)
                                                 Spacer()
-                                                Text("Qty: \(order.quantity)")
+                                                Text("Quantity: \(order.quantity)")
                                                     .font(.subheadline)
                                             }
-
+                                            
                                             HStack {
                                                 Text("Unit Price:")
                                                 Text(String(format: "%.2f %@", order.unitPrice, invoiceViewModel.tableCurrency))
                                                     .fontWeight(.medium)
                                             }
                                             .font(.subheadline)
-
+                                            
                                             HStack {
                                                 Text("Line Total:")
                                                 Text(String(format: "%.2f %@", order.totalPrice, invoiceViewModel.tableCurrency))
@@ -114,7 +118,7 @@ struct ActiveInvoiceView: View {
                                         }
                                         .padding(.vertical, 4)
                                     }
-
+                                    
                                     // Customer total line
                                     HStack {
                                         Text("Total for \(customerName):")
@@ -126,7 +130,7 @@ struct ActiveInvoiceView: View {
                                     }
                                     .padding(.vertical, 8)
                                 }
-
+                                
                                 // Table total price line (if available)
                                 if invoiceViewModel.tableTotalPrice > 0 {
                                     HStack {
@@ -138,6 +142,46 @@ struct ActiveInvoiceView: View {
                                             .bold()
                                     }
                                     .padding(.top, 8)
+                                }
+                                Button(action: {
+                                    let storedSessionID = UserDefaults.standard.string(forKey: "session_id") ?? ""
+                                    //print(storedSessionID)
+                                    billViewModel.checkSessionState(sessionID: storedSessionID) { success, errorMsg, state in
+                                        if success, let state = state {
+                                            //print(state)
+                                            if state == "CHECKOUT_PENDING" {
+                                                billViewModel.sessionID = storedSessionID
+                                                showingBillingSheet = true
+                                            } else if state == "ACTIVE" {
+                                                let tableID = qrCodeData.tableID ?? ""
+                                                billViewModel.checkoutTable(tableID: tableID) { success, checkoutError in
+                                                    if success {
+                                                        billViewModel.sessionID = storedSessionID
+                                                        showingBillingSheet = true
+                                                    } else {
+                                                        billViewModel.errorMessage = checkoutError
+                                                    }
+                                                }
+                                            } else {
+                                                billViewModel.errorMessage = "Cannot checkout. Session is in state \(state)."
+                                            }
+                                        } else {
+                                            billViewModel.errorMessage = errorMsg
+                                        }
+                                    }
+                                }) {
+                                    Text("Checkout")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(Color.green)
+                                        .cornerRadius(10)
+                                }
+                                .sheet(isPresented: $showingBillingSheet, onDismiss: {
+                                    invoiceViewModel.fetchAllOrders()
+                                }) {
+                                    BillingSummaryView(billViewModel: billViewModel)
                                 }
                             }
                         }

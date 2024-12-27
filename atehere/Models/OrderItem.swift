@@ -7,8 +7,6 @@
 
 import Foundation
 
-import Foundation
-
 struct OrderItem: Codable, Identifiable {
     let id =  UUID()
     let menuItemName: String

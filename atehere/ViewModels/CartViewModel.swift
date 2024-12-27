@@ -11,7 +11,8 @@ import SwiftUI
 class CartViewModel: ObservableObject {
     @Published var cartItems: [CartItem] = []
     @Published var errorMessage: String?
-
+    @Published var sessionID: String?
+    
     let tableID: String
 
     init(tableID: String) {
@@ -71,18 +72,39 @@ class CartViewModel: ObservableObject {
                                 completion(false, "Invalid server response.")
                                 return
                             }
-
                             if (200...299).contains(httpResponse.statusCode) {
-                                self.cartItems.removeAll()
-                                completion(true, nil)
+                                do {
+                                    let payload = try JSONDecoder().decode(ResponsePayload<OrderSessionResponse>.self, from: data!)
+                                    if let sessionData = payload.data {
+                                        self.sessionID = sessionData.sessionId
+                                        self.cartItems.removeAll()
+                                        UserDefaults.standard.set(sessionData.sessionId, forKey: "session_id")
+                                        //print("Session_id: ", self.sessionID)
+                                        completion(true, nil)
+                                    } else if let payloadError = payload.error {
+                                        completion(false, payloadError.message)
+                                    } else {
+                                        completion(true, "Order created, but no session ID found.")
+                                    }
+                                } catch {
+                                    print("Decoding error: \(error)")
+                                    completion(true, "Order created, but parsing session ID failed.")
+                                }
                             } else {
-                                if let data = data,
-                                   let serverError = try? JSONDecoder().decode(ServerError.self, from: data) {
-                                    completion(false, serverError.message)
+                                print("Status code: \(httpResponse.statusCode)")
+                                if let data = data {
+                                    let rawString = String(data: data, encoding: .utf8) ?? "nil"
+                                    print("Raw server response: \(rawString)")
+                                    if let serverError = try? JSONDecoder().decode(ServerError.self, from: data) {
+                                        completion(false, serverError.message)
+                                    } else {
+                                        completion(false, "Failed to submit order. Unknown error.")
+                                    }
                                 } else {
-                                    completion(false, "Failed to submit order.")
+                                    completion(false, "Failed to submit order. No data received.")
                                 }
                             }
+
                         }
                     }.resume()
                 }
@@ -90,3 +112,4 @@ class CartViewModel: ObservableObject {
         }
     
 }
+

@@ -100,7 +100,6 @@ struct CartView: View {
     // MARK: - Helper Methods
 
     private func findMenuItem(by id: String) -> MenuItem? {
-        // Search through all menus in menuViewModel
         for menu in menuViewModel.menus {
             if let item = menu.menuItems.first(where: { $0.id == id }) {
                 return item
