@@ -17,4 +17,5 @@ struct Restaurant: Codable, Identifiable {
     let imageUrl: String
     var workingDays: [String]
     var locations: [Coordinates]
+    
 }

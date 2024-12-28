@@ -17,19 +17,35 @@ struct ActiveMenuView: View {
     @State private var showingAddToCart = false
     @State private var selectedMenuItem: MenuItem?
 
+    
+    @StateObject private var restaurantViewModel: RestaurantViewModel
+
     init(qrCodeData: QRCodeData) {
         self.qrCodeData = qrCodeData
         _menuViewModel = StateObject(wrappedValue: MenuViewModel(restaurantID: qrCodeData.restaurantID ?? ""))
         _cartViewModel = StateObject(wrappedValue: CartViewModel(tableID: qrCodeData.tableID ?? ""))
+        _restaurantViewModel = StateObject(wrappedValue: RestaurantViewModel(restaurantID: qrCodeData.restaurantID ?? ""))
+
     }
 
     var body: some View {
         NavigationView {
             VStack {
                 HStack {
-                    // TODO: Add Restaurant Name From ViewModel
-                    Text("Restaurant Name")
-                        .font(.largeTitle.bold())
+                    if restaurantViewModel.isLoading {
+                       ProgressView("Loading Restaurant...")
+                    } else if let errorMsg = restaurantViewModel.errorMessage {
+                       Text(errorMsg)
+                           .foregroundColor(.red)
+                           .multilineTextAlignment(.center)
+                           .padding()
+                    } else if let restaurant = restaurantViewModel.restaurant {
+                       Text(restaurant.name)
+                           .font(.largeTitle.bold())
+                    } else {
+                       Text("Restaurant Name")
+                           .font(.largeTitle.bold())
+                    }
 
                     Spacer()
 

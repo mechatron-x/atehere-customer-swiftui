@@ -23,11 +23,6 @@ struct QRScanView: View {
                     dataToScanFor: [.barcode(symbologies: [.qr])]
                 )
 
-                Text(viewModel.scannedText)
-                    .padding()
-                    .background(Color.white.opacity(0.8))
-                    .cornerRadius(8)
-                    .padding()
             }
             .navigationTitle("Scan QR Code")
             .navigationBarTitleDisplayMode(.inline)
