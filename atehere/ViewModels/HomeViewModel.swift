@@ -18,6 +18,10 @@ class HomeViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
 
+    
+    @Published var userCoordinates: Coordinates?
+    @Published var searchRadius: Double = 60
+    
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -29,6 +33,27 @@ class HomeViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
+//    func fetchRestaurants(completion: (() -> Void)? = nil) {
+//        isLoading = true
+//        errorMessage = nil
+//
+//        guard let url = URL(string: "\(Config.baseURL)/api/v1/customers/restaurants") else {
+//            self.errorMessage = "Invalid URL."
+//            self.isLoading = false
+//            return
+//        }
+//
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "POST"
+//        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+//        request.setValue("application/json", forHTTPHeaderField: "Accept")
+//        request.setValue("gzip, deflate", forHTTPHeaderField: "Accept-Encoding")
+//
+//        request.httpBody = "{}".data(using: .utf8)
+//
+//        performRequest(request, completion: completion)
+//    }
+    
     func fetchRestaurants(completion: (() -> Void)? = nil) {
         isLoading = true
         errorMessage = nil
@@ -45,10 +70,44 @@ class HomeViewModel: ObservableObject {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("gzip, deflate", forHTTPHeaderField: "Accept-Encoding")
 
-        request.httpBody = "{}".data(using: .utf8)
+        var requestBody: [String: Any] = [:]
 
+
+        requestBody["working_days"] = ["Monday"]
+        
+        if let coords = userCoordinates {
+            requestBody["customer_location"] = [
+                "latitude": coords.latitude,
+                "longitude": coords.longitude
+            ]
+        }
+        let storedLat = UserDefaults.standard.value(forKey: "UserLatitude") ?? 0.0
+        let storedLon = UserDefaults.standard.value(forKey: "UserLongitude") ?? 0.0
+        
+        requestBody["customer_location"] = [
+            "latitude": storedLat,
+            "longitude": storedLon
+        ]
+        requestBody["search_radius"] = searchRadius
+
+        // (Optionally) If your backend also expects "name" for text filtering
+        // requestBody["name"] = searchText
+
+        
+        print(requestBody)
+        do {
+            let data = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+            request.httpBody = data
+        } catch {
+            self.errorMessage = "Failed to encode request body."
+            self.isLoading = false
+            return
+        }
+
+        // 4) Send off to your existing “performRequest” method
         performRequest(request, completion: completion)
     }
+
 
     private func performRequest(_ request: URLRequest, completion: (() -> Void)? = nil) {
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
@@ -75,7 +134,7 @@ class HomeViewModel: ObservableObject {
                         let decoder = JSONDecoder()
                         decoder.keyDecodingStrategy = .convertFromSnakeCase
                         let payload = try decoder.decode(ResponsePayload<RestaurantList>.self, from: data)
-                        //print(payload)
+                        print(payload)
                         
                         if let payloadData = payload.data {
                             let normalizedRestaurants = payloadData.restaurants.map { restaurant -> Restaurant in

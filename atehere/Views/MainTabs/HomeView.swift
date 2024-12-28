@@ -11,13 +11,23 @@ import SwiftUI
 struct HomeView: View {
     
     @StateObject private var viewModel = HomeViewModel()
-    
+    @ObservedObject var locationViewModel = LocationViewModel()
+
     var body: some View {
         NavigationView {
             VStack {
                 TextField("Search by name", text: $viewModel.searchText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
+                
+                if let location = locationViewModel.userLocation {
+                    Text("Latitude: \(location.latitude)")
+                    Text("Longitude: \(location.longitude)")
+                    
+                    
+                } else {
+                    Text("Location not available.")
+                }
                 
                 if !viewModel.availableWorkingDays.isEmpty {
                     DaySelectionView(selectedDays: $viewModel.selectedDays, availableDays: viewModel.availableWorkingDays)
@@ -52,6 +62,7 @@ struct HomeView: View {
                     .onAppear {
                         viewModel.fetchRestaurants()
                     }
+
             }
         }
     }
