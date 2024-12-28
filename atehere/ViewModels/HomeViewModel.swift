@@ -134,7 +134,7 @@ class HomeViewModel: ObservableObject {
                         let decoder = JSONDecoder()
                         decoder.keyDecodingStrategy = .convertFromSnakeCase
                         let payload = try decoder.decode(ResponsePayload<RestaurantList>.self, from: data)
-                        print(payload)
+                        //print(payload)
                         
                         if let payloadData = payload.data {
                             let normalizedRestaurants = payloadData.restaurants.map { restaurant -> Restaurant in

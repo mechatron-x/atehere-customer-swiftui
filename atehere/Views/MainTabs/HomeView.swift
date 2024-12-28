@@ -20,15 +20,6 @@ struct HomeView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
                 
-                if let location = locationViewModel.userLocation {
-                    Text("Latitude: \(location.latitude)")
-                    Text("Longitude: \(location.longitude)")
-                    
-                    
-                } else {
-                    Text("Location not available.")
-                }
-                
                 if !viewModel.availableWorkingDays.isEmpty {
                     DaySelectionView(selectedDays: $viewModel.selectedDays, availableDays: viewModel.availableWorkingDays)
                 }
