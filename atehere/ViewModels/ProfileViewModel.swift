@@ -15,6 +15,8 @@ class ProfileViewModel: ObservableObject {
     @Published var navigateToLogin: Bool = false 
 
     private let authService = AuthService.shared
+    
+    @Published var pastBills: [PastBill] = []
 
     func fetchProfile() {
         isLoading = true
@@ -81,9 +83,6 @@ class ProfileViewModel: ObservableObject {
             }
         }.resume()
     }
-    
-    
-    
 
     
     func updateProfile() {
@@ -155,7 +154,66 @@ class ProfileViewModel: ObservableObject {
             }
         }.resume()
     }
+    
+    
+    func fetchPastBills() {
+            isLoading = true
+            errorMessage = nil
 
+            guard let url = URL(string: "\(Config.baseURL)/api/v1/customers/bills") else {
+                self.errorMessage = "Invalid bills URL."
+                self.isLoading = false
+                return
+            }
+
+            AuthService.shared.getIdToken { [weak self] token in
+                guard let self = self else { return }
+
+                DispatchQueue.main.async {
+                    guard let bearerToken = token else {
+                        self.errorMessage = "Authentication token missing or expired."
+                        self.isLoading = false
+                        return
+                    }
+
+                    var request = URLRequest(url: url)
+                    request.httpMethod = "GET"
+                    request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+                    request.setValue("application/json", forHTTPHeaderField: "Accept")
+
+                    URLSession.shared.dataTask(with: request) { data, response, error in
+                        DispatchQueue.main.async {
+                            self.isLoading = false
+
+                            if let error = error {
+                                self.errorMessage = "Network error: \(error.localizedDescription)"
+                                return
+                            }
+                            guard let data = data else {
+                                self.errorMessage = "No data received from server."
+                                return
+                            }
+
+                            do {
+                                let decoded = try JSONDecoder().decode(ResponsePayload<[PastBill]>.self, from: data)
+                                if let billsArray = decoded.data {
+                                    self.pastBills = billsArray
+                                } else if let payloadError = decoded.error {
+                                    self.errorMessage = payloadError.message
+                                } else {
+                                    self.errorMessage = "Failed to load past bills."
+                                }
+                            } catch {
+                                self.errorMessage = "Failed to parse past bills."
+                                print("Decoding error: \(error)")
+                            }
+                        }
+                    }.resume()
+                }
+            }
+        }
+    
+    
     private func handleErrorResponse(data: Data?, defaultMessage: String) {
         if let data = data,
            let serverError = try? JSONDecoder().decode(ServerError.self, from: data) {

@@ -12,6 +12,9 @@ struct ProfileView: View {
     @State private var isPasswordVisible = false
     @State private var birthDate: Date = Date()
     
+    @State private var showingPastBills = false
+
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -209,6 +212,20 @@ struct ProfileView: View {
                             }
                         }
                         
+                        Button(action: {
+                                showingPastBills = true
+                            }) {
+                                Text("Past Bills")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.blue)
+                                    .cornerRadius(10)
+                            }
+                            .padding(.horizontal)
+                            .padding(.top, 8)
+                        
                         Spacer()
                         
                         
@@ -223,6 +240,9 @@ struct ProfileView: View {
                 .onAppear() {
                     profileViewModel.fetchProfile()
                 }
+            }
+            .sheet(isPresented: $showingPastBills) {
+                PastBillsView()
             }
             .navigationBarBackButtonHidden(true)
             .navigationTitle("Profile")
