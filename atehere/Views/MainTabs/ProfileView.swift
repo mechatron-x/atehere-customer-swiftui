@@ -12,38 +12,64 @@ struct ProfileView: View {
     @EnvironmentObject var tabSelectionManager: TabSelectionManager
     @EnvironmentObject var qrViewModel: QRScanViewModel
     
-    @State private var showingPastBills = false
-    @State private var showingPersonalInfo = false
-    @State private var navigateToLogin = false
+    @State private var navigateToPersonalInfo: Bool = false
+    @State private var navigateToPastBills: Bool = false
+    @State private var navigateToLogin: Bool = false
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
-                // Personal Information Button
-                NavigationLink(destination: PersonalInformationView(profileViewModel: profileViewModel)) {
-                    Text("Personal Information")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                        .padding(.horizontal)
+            ZStack {
+                Color.gray.opacity(0.1).ignoresSafeArea()
+                
+                VStack(spacing: 20) {
+                    List {
+                        Button(action: {
+                            navigateToPersonalInfo = true
+                        }) {
+                            Text("Personal Information")
+                                .padding(10)
+                                .frame(minWidth: 111, idealWidth: .infinity, maxWidth: .infinity, alignment: .leading)
+                        }
+                        .background(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .tag(1)
+                        
+                        Button(action: {
+                            navigateToPastBills = true
+                        }) {
+                            Text("Past Bills")
+                                .padding(10)
+                                .frame(minWidth: 111, idealWidth: .infinity, maxWidth: .infinity, alignment: .leading)
+                        }
+                        .background(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .tag(2)
+                    }
+                    .listStyle(PlainListStyle())
+                    
+                    Spacer()
                 }
                 
-                // Past Bills Button
-                NavigationLink(destination: PastBillsView()) {
-                    Text("Past Bills")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                        .padding(.horizontal)
+                VStack {
+                    NavigationLink(
+                        destination: PersonalInformationView(profileViewModel: profileViewModel),
+                        isActive: $navigateToPersonalInfo,
+                        label: { EmptyView() }
+                    )
+                    
+                    NavigationLink(
+                        destination: PastBillsView(),
+                        isActive: $navigateToPastBills,
+                        label: { EmptyView() }
+                    )
+                    
+                    NavigationLink(
+                        destination: LoginView(),
+                        isActive: $navigateToLogin,
+                        label: { EmptyView() }
+                    )
                 }
-                
-                Spacer()
+                .hidden()
             }
             .navigationTitle("Profile")
             .toolbar {
@@ -56,6 +82,9 @@ struct ProfileView: View {
                             .foregroundColor(.red)
                     }
                 }
+            }
+            .onAppear {
+                profileViewModel.fetchProfile()
             }
             .background(
                 Group {
@@ -72,17 +101,6 @@ struct ProfileView: View {
                 }
             )
             .navigationBarBackButtonHidden(true)
-            .background(Color.gray.opacity(0.1).ignoresSafeArea())
-            .onAppear {
-                profileViewModel.fetchProfile()
-            }
-            .background(
-                NavigationLink(
-                    destination: LoginView(),
-                    isActive: $navigateToLogin,
-                    label: { EmptyView() }
-                )
-            )
         }
     }
 }
