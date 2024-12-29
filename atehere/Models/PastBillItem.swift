@@ -9,7 +9,6 @@ import Foundation
 
 struct PastBillItem: Identifiable, Decodable {
     let id = UUID().uuidString
-
     let itemName: String
     let quantity: Int
     let unitPrice: Double
