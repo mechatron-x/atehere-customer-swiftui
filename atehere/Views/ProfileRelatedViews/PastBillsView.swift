@@ -27,17 +27,16 @@ struct PastBillsView: View {
                     List(viewModel.pastBills) { bill in
                         // For each bill, show a section or row
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Bill ID: \(bill.id)")
-                                .font(.headline)
                             Text("Restaurant: \(bill.restaurantName)")
-                                .font(.subheadline)
+                                .font(.headline)
+                    
 
                             // Bill Items
                             ForEach(bill.billItems) { billItem in
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(billItem.itemName)
                                         .fontWeight(.semibold)
-                                    Text("Qty: \(billItem.quantity), " +
+                                    Text("Quantity: \(billItem.quantity), " +
                                          String(format: "Unit: %.2f", billItem.unitPrice))
                                         .font(.footnote)
                                     Text(String(format: "Order Price: %.2f, Paid: %.2f %@",
