@@ -29,11 +29,7 @@ struct RestaurantDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 
-                Text(restaurant.name)
-                    .font(.title)
-                    .bold()
-                    .padding(.top)
-
+    
                 AsyncImage(url: URL(string: restaurant.imageUrl)) { phase in
                     switch phase {
                     case .success(let image):
@@ -56,8 +52,22 @@ struct RestaurantDetailView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Phone: \(restaurant.phoneNumber)")
-                        .font(.body)
+                    if let phoneURL = URL(string: "tel://\(restaurant.phoneNumber.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: " ", with: ""))") {
+                        Link(destination: phoneURL) {
+                            HStack {
+                                Image(systemName: "phone.fill")
+                                    .foregroundColor(.blue)
+                                Text(restaurant.phoneNumber)
+                                    .foregroundColor(.blue)
+                                    .underline()
+                            }
+                            .font(.body)
+                        }
+                        .accessibilityLabel("Call \(restaurant.phoneNumber)")
+                    } else {
+                        Text(restaurant.phoneNumber)
+                            .font(.body)
+                    }
                     
                     Text("Working Days: \(restaurant.workingDays.joined(separator: ", "))")
                         .font(.body)
@@ -70,18 +80,32 @@ struct RestaurantDetailView: View {
                     Text("Locations:")
                         .font(.headline)
                     
+//                    Map(coordinateRegion: $region,
+//                        annotationItems: restaurant.locations
+//                    ) { location in
+//                        MapMarker(
+//                            coordinate: CLLocationCoordinate2D(
+//                                latitude: location.latitude,
+//                                longitude: location.longitude
+//                            ),
+//                            tint: .blue
+//                        )
+//                    }
                     Map(coordinateRegion: $region,
-                        annotationItems: restaurant.locations
-                    ) { location in
-                        MapMarker(
-                            coordinate: CLLocationCoordinate2D(
-                                latitude: location.latitude,
-                                longitude: location.longitude
-                            ),
-                            tint: .blue
-                        )
-                    }
-                    .frame(height: 300)
+                       annotationItems: restaurant.locations) { location in
+                       // Use MapAnnotation for clickable pins
+                       MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)) {
+                           Button(action: {
+                               openMaps(location: location)
+                           }) {
+                               Image(systemName: "mappin.circle")
+                                   .resizable()
+                                   .frame(width: 30, height: 30)
+                                   .foregroundColor(.blue)
+                           }
+                       }
+                   }
+                    .frame(height: 200)
                     .cornerRadius(8)
                 }
 
@@ -104,24 +128,70 @@ struct RestaurantDetailView: View {
                     Text("No menu items found.")
                         .foregroundColor(.gray)
                 }
+                
+                
+//                else {
+//                    Picker("Menu", selection: $selectedMenuIndex) {
+//                        ForEach(menuViewModel.menus.indices, id: \.self) { index in
+//                            Text(menuViewModel.menus[index].category.capitalized)
+//                                .tag(index)
+//                        }
+//                    }
+//                    .pickerStyle(SegmentedPickerStyle())
+//
+//                    HStack {
+//                        Text(menuViewModel.menus[selectedMenuIndex].category.capitalized)
+//                            .font(.title2)
+//                            .padding(.top, 4)
+//                            .bold()
+//                        Spacer()
+//                    }
+//                    Divider()
+//
+//                    VStack {
+//                        ForEach(menuViewModel.menus[selectedMenuIndex].menuItems ?? []) { item in
+//                            DisplayMenuItemView(menuItem: item)
+//                                .padding(.bottom, 4)
+//                        }
+//                    }
+//                }
                 else {
-                    Picker("Menu", selection: $selectedMenuIndex) {
-                        ForEach(menuViewModel.menus.indices, id: \.self) { index in
-                            Text(menuViewModel.menus[index].category.capitalized)
-                                .tag(index)
+                    // Category Slider
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(menuViewModel.menus.indices, id: \.self) { index in
+                                Button(action: {
+                                    selectedMenuIndex = index
+                                }) {
+                                    Text(menuViewModel.menus[index].category.capitalized)
+                                        .font(.caption)
+                                        .fontWeight(selectedMenuIndex == index ? .bold : .regular)
+                                        .foregroundColor(selectedMenuIndex == index ? .white : .blue)
+                                        .padding(.vertical, 6)
+                                        .padding(.horizontal, 12)
+                                        .background(selectedMenuIndex == index ? Color.blue : Color.gray.opacity(0.2))
+                                        .cornerRadius(8)
+                                        .shadow(color: selectedMenuIndex == index ? Color.blue.opacity(0.5) : Color.clear, radius: 3, x: 0, y: 1)
+                                        .scaleEffect(selectedMenuIndex == index ? 1.02 : 1.0)
+                                }
+                                .frame(minWidth: 120, maxWidth: 140)
+                            }
                         }
+                        .padding(.vertical, 8)
                     }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal)
 
+                    Divider()
+
+                    // Selected Category Title
                     HStack {
                         Text(menuViewModel.menus[selectedMenuIndex].category.capitalized)
-                            .font(.headline)
+                            .font(.title3)
                             .padding(.top, 4)
                         Spacer()
                     }
-                    .padding(.horizontal)
+                    Divider()
 
+                    // Menu Items List
                     VStack {
                         ForEach(menuViewModel.menus[selectedMenuIndex].menuItems ?? []) { item in
                             DisplayMenuItemView(menuItem: item)
@@ -129,6 +199,9 @@ struct RestaurantDetailView: View {
                         }
                     }
                 }
+                
+                
+                
                 
             }
             .padding(.horizontal)
@@ -144,5 +217,18 @@ struct RestaurantDetailView: View {
         .navigationTitle(restaurant.name)
         .navigationBarTitleDisplayMode(.inline)
     }
-}
+    
+    private func openMaps(location: Coordinates) {
+        let coordinate = CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)
+        let placemark = MKPlacemark(coordinate: coordinate)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = restaurant.name
 
+        let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 1000, longitudinalMeters: 1000)
+        
+        MKMapItem.openMaps(with: [mapItem], launchOptions: [
+            MKLaunchOptionsMapCenterKey: NSValue(mkCoordinate: region.center),
+            MKLaunchOptionsMapSpanKey: NSValue(mkCoordinateSpan: region.span)
+        ])
+    }
+}
