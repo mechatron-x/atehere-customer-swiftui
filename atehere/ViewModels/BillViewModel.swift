@@ -279,6 +279,7 @@ class BillViewModel: ObservableObject {
 
                         if (200...299).contains(httpResponse.statusCode) {
                             completion(true, nil)
+                            print("Checkout successful")
                         } else {
                             if let data = data,
                                let serverError = try? JSONDecoder().decode(ServerError.self, from: data) {

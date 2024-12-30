@@ -53,9 +53,11 @@ struct ActiveInvoiceView: View {
             fetchAllOrdersIfNeeded()
             
             let storedSessionID = UserDefaults.standard.string(forKey: "session_id") ?? ""
+            print(storedSessionID)
             if !storedSessionID.isEmpty {
                 billViewModel.checkSessionState(sessionID: storedSessionID) { success, errorMsg, state in
                     if success, let state = state {
+                        print(state)
                         DispatchQueue.main.async {
                             if state == "CHECKOUT_PENDING" {
                                 billViewModel.sessionID = storedSessionID
@@ -74,6 +76,26 @@ struct ActiveInvoiceView: View {
         .onReceive(tabSelectionManager.$tabSelection) { newSelection in
             if newSelection == .invoice {
                 fetchAllOrdersIfNeeded()
+            }
+            let storedSessionID = UserDefaults.standard.string(forKey: "session_id") ?? ""
+            print(storedSessionID)
+            if !storedSessionID.isEmpty {
+                billViewModel.checkSessionState(sessionID: storedSessionID) { success, errorMsg, state in
+                    if success, let state = state {
+                        print(state)
+                        DispatchQueue.main.async {
+                            if state == "CHECKOUT_PENDING" {
+                                billViewModel.sessionID = storedSessionID
+                                showBottomSheet = true
+                            }
+                            else if state == "COMPLETED" {
+                                qrViewModel.removeQRCodeData()
+                            }
+                        }
+                    } else {
+                        billViewModel.errorMessage = errorMsg
+                    }
+                }
             }
         }
 
