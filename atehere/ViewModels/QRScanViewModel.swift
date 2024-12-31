@@ -46,10 +46,15 @@ class QRScanViewModel: ObservableObject {
         UserDefaults.standard.set(qrCodeData.restaurantID, forKey: "restaurantID")
         UserDefaults.standard.set(qrCodeData.tableID, forKey: "tableID")
     }
-    
-    private func getQRCodeDataFromUserDefaults(){
-        let returnQR: QRCodeData?
-        let restaurantID = UserDefaults.standard.string(forKey: "restaurantID")
-        let tableID = UserDefaults.standard.string(forKey: "tableID")
+
+
+    func removeQRCodeData() {
+        self.qrCodeData = nil
+        self.scannedText = ""
+        self.navigateToMenu = false
+        
+        UserDefaults.standard.removeObject(forKey: "restaurantID")
+        UserDefaults.standard.removeObject(forKey: "tableID")
+        UserDefaults.standard.removeObject(forKey: "session_id")
     }
 }
