@@ -12,20 +12,18 @@ struct ActiveMenuView: View {
 
     @StateObject private var menuViewModel: MenuViewModel
     @StateObject private var cartViewModel: CartViewModel
+    @StateObject private var restaurantViewModel: RestaurantViewModel
+
     @State private var selectedMenuIndex: Int = 0
     @State private var showingCart = false
     @State private var showingAddToCart = false
     @State private var selectedMenuItem: MenuItem?
-
-    
-    @StateObject private var restaurantViewModel: RestaurantViewModel
 
     init(qrCodeData: QRCodeData) {
         self.qrCodeData = qrCodeData
         _menuViewModel = StateObject(wrappedValue: MenuViewModel(restaurantID: qrCodeData.restaurantID ?? ""))
         _cartViewModel = StateObject(wrappedValue: CartViewModel(tableID: qrCodeData.tableID ?? ""))
         _restaurantViewModel = StateObject(wrappedValue: RestaurantViewModel(restaurantID: qrCodeData.restaurantID ?? ""))
-
     }
 
     var body: some View {
@@ -33,18 +31,18 @@ struct ActiveMenuView: View {
             VStack {
                 HStack {
                     if restaurantViewModel.isLoading {
-                       ProgressView("Loading Restaurant...")
+                        ProgressView("Loading Restaurant...")
                     } else if let errorMsg = restaurantViewModel.errorMessage {
-                       Text(errorMsg)
-                           .foregroundColor(.red)
-                           .multilineTextAlignment(.center)
-                           .padding()
+                        Text(errorMsg)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding()
                     } else if let restaurant = restaurantViewModel.restaurant {
-                       Text(restaurant.name)
-                           .font(.largeTitle.bold())
+                        Text(restaurant.name)
+                            .font(.largeTitle.bold())
                     } else {
-                       Text("Restaurant Name")
-                           .font(.largeTitle.bold())
+                        Text("Restaurant Name")
+                            .font(.largeTitle.bold())
                     }
 
                     Spacer()
@@ -66,14 +64,26 @@ struct ActiveMenuView: View {
                 .padding(.horizontal)
 
                 if !menuViewModel.menus.isEmpty {
-                    Picker("Menu", selection: $selectedMenuIndex) {
-                        ForEach(menuViewModel.menus.indices, id: \.self) { index in
-                            Text(menuViewModel.menus[index].category.capitalized)
-                                .tag(index)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(menuViewModel.menus.indices, id: \.self) { index in
+                                Button(action: {
+                                    selectedMenuIndex = index
+                                }) {
+                                    Text(menuViewModel.menus[index].category.capitalized)
+                                        .font(.subheadline)
+                                        .fontWeight(selectedMenuIndex == index ? .bold : .regular)
+                                        .foregroundColor(selectedMenuIndex == index ? .white : .blue)
+                                        .padding(.vertical, 8)
+                                        .padding(.horizontal, 12)
+                                        .background(selectedMenuIndex == index ? Color.blue : Color.gray.opacity(0.2))
+                                        .cornerRadius(8)
+                                }
+                            }
                         }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
                     }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal)
                 }
 
                 HStack {
@@ -84,10 +94,12 @@ struct ActiveMenuView: View {
                     }
                     Spacer()
                 }
-                .padding()
+                .padding(.top, 4)
+                .padding(.horizontal)
 
                 Divider()
 
+                // Main content: Menu Items or Loading/Error
                 if menuViewModel.isLoading {
                     ProgressView("Loading Menu...")
                 } else if let errorMessage = menuViewModel.errorMessage {
@@ -97,11 +109,15 @@ struct ActiveMenuView: View {
                         .padding()
                 } else {
                     ScrollView {
-                        VStack {
-                            ForEach(menuViewModel.menus[selectedMenuIndex].menuItems ?? []) { item in
-                                MenuItemView(menuItem: item) {
-                                    selectedMenuItem = item
-                                    showingAddToCart = true
+                        VStack(spacing: 12) {
+                            // Show items of the selected menu
+                            if let items = menuViewModel.menus[safe: selectedMenuIndex]?.menuItems {
+                                ForEach(items) { item in
+                                    MenuItemView(menuItem: item) {
+                                        // On "Add to Cart" action
+                                        selectedMenuItem = item
+                                        showingAddToCart = true
+                                    }
                                 }
                             }
                         }
@@ -109,7 +125,7 @@ struct ActiveMenuView: View {
                     }
                 }
             }
-            .navigationTitle("Menu")
+            .navigationTitle("Menu") // You can keep or remove the nav bar title
             .sheet(isPresented: $showingCart) {
                 CartView(cartViewModel: cartViewModel, menuViewModel: menuViewModel)
             }
@@ -120,4 +136,8 @@ struct ActiveMenuView: View {
     }
 }
 
-
+extension Collection {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
+}
