@@ -190,7 +190,9 @@ struct PersonalInformationView: View {
                                     .foregroundColor(.white)
                             }
                         }
-                        .padding()             }
+                        .padding()
+                        .padding(.bottom, 50)
+                    }
                 }
                 .onAppear() {
                     profileViewModel.fetchProfile()
@@ -202,16 +204,15 @@ struct PersonalInformationView: View {
         }
     }
         
-    // Helper functions to convert between String and Date
     func dateFromString(_ dateString: String) -> Date? {
         let formatter = DateFormatter()
-        formatter.dateFormat = "dd-MM-yyyy" // Adjusted to "dd-MM-yyyy" format
+        formatter.dateFormat = "dd-MM-yyyy"
         return formatter.date(from: dateString)
     }
     
     func stringFromDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "dd-MM-yyyy" // Adjusted to "dd-MM-yyyy" format
+        formatter.dateFormat = "dd-MM-yyyy"
         return formatter.string(from: date)
     }
 }

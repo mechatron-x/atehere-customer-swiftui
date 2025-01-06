@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUICore
 
 class ProfileViewModel: ObservableObject {
     @Published var profile: Profile?
@@ -13,6 +14,8 @@ class ProfileViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var isEditing: Bool = false
     @Published var navigateToLogin: Bool = false 
+    @StateObject var qrViewModel : QRScanViewModel =  QRScanViewModel()
+    @StateObject var loginViewModel : LoginViewModel =  LoginViewModel()
 
     private let authService = AuthService.shared
     
@@ -223,15 +226,15 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
-    
-
-
     func logout() {
         authService.logout { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success:
-                    self?.navigateToLogin = true
+                    //self?.navigateToLogin = true
+                    self?.loginViewModel.isAuthenticated = false
+                    self?.qrViewModel.removeQRCodeData()
+
                 case .failure(let error):
                     self?.errorMessage = "Logout failed: \(error.localizedDescription)"
                 }

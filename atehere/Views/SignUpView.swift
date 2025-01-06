@@ -11,7 +11,8 @@ struct SignUpView: View {
     @StateObject var signUpViewModel = SignUpViewModel()
     @State private var isPasswordVisible = false
     @State private var navigateToLogin = false
-    
+    @StateObject private var loginViewModel = LoginViewModel()
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -150,7 +151,7 @@ struct SignUpView: View {
                             .font(.subheadline)
                             .foregroundColor(.white)
                         
-                        NavigationLink(destination: LoginView()) {
+                        NavigationLink(destination: LoginView(loginViewModel: loginViewModel)) {
                             Text("Login.")
                                 .font(.subheadline)
                                 .foregroundColor(.white)
@@ -168,7 +169,7 @@ struct SignUpView: View {
             }
             .navigationBarHidden(true)
             .navigationDestination(isPresented: $navigateToLogin) {
-                LoginView()
+                LoginView(loginViewModel: loginViewModel)
             }
         }
     }
