@@ -17,6 +17,13 @@ class QRScanViewModel: ObservableObject {
     
     @Published var errorMessage: String?
     
+    init(){
+        if let restaurantID = UserDefaults.standard.string(forKey: "restaurantID"),
+           let tableID = UserDefaults.standard.string(forKey: "tableID") {
+            qrCodeData = QRCodeData(tableID: tableID, restaurantID: restaurantID)
+        }
+    }
+    
     func handleScannedText(_ text: String) {
         scannedText = text
         if let qrCodeData = parseQRCodeData(from: text) {

@@ -12,9 +12,17 @@ struct ProfileView: View {
     @EnvironmentObject var tabSelectionManager: TabSelectionManager
     @EnvironmentObject var qrViewModel: QRScanViewModel
     
+    @StateObject private var loginViewModel = LoginViewModel()
+    @StateObject var qrScanViewModel = QRScanViewModel()
+    
+    
+    //@EnvironmentObject var loginViewModel: LoginViewModel
+
     @State private var navigateToPersonalInfo: Bool = false
     @State private var navigateToPastBills: Bool = false
     @State private var navigateToLogin: Bool = false
+    
+    @State private var showingLoginScreen = false
     
     var body: some View {
         NavigationView {
@@ -63,11 +71,6 @@ struct ProfileView: View {
                         label: { EmptyView() }
                     )
                     
-                    NavigationLink(
-                        destination: LoginView(),
-                        isActive: $navigateToLogin,
-                        label: { EmptyView() }
-                    )
                 }
                 .hidden()
             }
@@ -76,7 +79,9 @@ struct ProfileView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         profileViewModel.logout()
-                        navigateToLogin = true
+                        //navigateToLogin = true
+                        showingLoginScreen = true
+
                     }) {
                         Text("Logout")
                             .foregroundColor(.red)
@@ -101,6 +106,11 @@ struct ProfileView: View {
                 }
             )
             .navigationBarBackButtonHidden(true)
+            .fullScreenCover(isPresented: $showingLoginScreen) {
+                LoginView()
+                    .interactiveDismissDisabled(true)
+                    
+            }
         }
     }
 }

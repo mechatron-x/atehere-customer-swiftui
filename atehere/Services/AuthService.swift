@@ -85,7 +85,7 @@ class AuthService {
         }
     }
 
-    private func getValue(forKey key: String) -> String? {
+    func getValue(forKey key: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: "media.dorduncuboyut.atehere",
@@ -119,7 +119,7 @@ class AuthService {
         }
     }
 
-    private func deleteValue(forKey key: String) {
+    func deleteValue(forKey key: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: "media.dorduncuboyut.atehere",
@@ -132,4 +132,49 @@ class AuthService {
             print("Error deleting \(key) from Keychain: \(status)")
         }
     }
+    
+    
+    func isTokenExpired(_ jwt: String) -> Bool {
+        // Split the JWT into its three parts
+        let segments = jwt.components(separatedBy: ".")
+        guard segments.count == 3 else {
+            return true  // Malformed => treat as “expired”
+        }
+
+        // The second segment is the payload
+        let payloadSegment = segments[1]
+        
+        // Decode from base64URL to Data
+        guard let payloadData = base64URLDecode(payloadSegment) else {
+            return true
+        }
+
+        // Convert data to JSON
+        guard let json = try? JSONSerialization.jsonObject(with: payloadData, options: []),
+              let payloadDict = json as? [String: Any] else {
+            return true
+        }
+
+        // Look for the 'exp' field
+        if let exp = payloadDict["exp"] as? Double {
+            let currentUnixTime = Date().timeIntervalSince1970
+            // If current time is >= exp, token is expired
+            return currentUnixTime >= exp
+        }
+
+        return true  // if we can’t find or parse exp => treat as expired
+    }
+
+    // A small helper to properly decode base64URL into Data
+    private func base64URLDecode(_ value: String) -> Data? {
+        var base64 = value
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        // Pad with '=' if necessary
+        while base64.count % 4 != 0 {
+            base64.append("=")
+        }
+        return Data(base64Encoded: base64, options: .ignoreUnknownCharacters)
+    }
+
 }

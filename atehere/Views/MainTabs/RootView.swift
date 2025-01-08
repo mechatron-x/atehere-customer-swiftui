@@ -10,7 +10,7 @@ import SwiftUI
 struct RootView: View {
     @StateObject var tabSelectionManager = TabSelectionManager()
     @StateObject var qrViewModel =  QRScanViewModel()
-    
+
     var body: some View {
         ZStack{
             CustomTabBarContainerView(selection: $tabSelectionManager.tabSelection) {
@@ -37,8 +37,3 @@ struct RootView: View {
 }
 
 
-struct RootView_Previews: PreviewProvider {
-    static var previews: some View {
-        RootView()
-    }
-}
