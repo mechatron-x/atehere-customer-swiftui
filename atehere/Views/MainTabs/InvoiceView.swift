@@ -8,8 +8,14 @@
 import SwiftUI
 
 struct InvoiceView: View {
+    @EnvironmentObject var qrViewModel: QRScanViewModel
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        if let qrCodeData = qrViewModel.qrCodeData {
+            ActiveInvoiceView(qrCodeData: qrCodeData)
+        } else {
+            InactiveQRInvoiceView()
+        }
     }
 }
 

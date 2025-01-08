@@ -6,13 +6,34 @@
 //
 
 import SwiftUI
+import VisionKit
 
 struct QRScanView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    @EnvironmentObject var viewModel: QRScanViewModel
+    @State var isShowingScanner = true
+    @EnvironmentObject var tabSelectionManager: TabSelectionManager
 
-#Preview {
-    QRScanView()
+    var body: some View {
+        NavigationView {
+            ZStack(alignment: .bottom) {
+                DataScannerRepresentable(
+                    shouldStartScanning: $isShowingScanner,
+                    scannedText: $viewModel.scannedText,
+                    onScanned: viewModel.handleScannedText,
+                    dataToScanFor: [.barcode(symbologies: [.qr])]
+                )
+
+            }
+            .navigationTitle("Scan QR Code")
+            .navigationBarTitleDisplayMode(.inline)
+            .onChange(of: viewModel.navigateToMenu, { oldValue, newValue in
+                tabSelectionManager.tabSelection = .menu
+            })
+            .alert(isPresented: $viewModel.showAlert) {
+                Alert(title: Text("Invalid QR Code"),
+                      message: Text("The scanned QR code is invalid or not in the correct format."),
+                      dismissButton: .default(Text("OK")))
+            }
+        }
+    }
 }

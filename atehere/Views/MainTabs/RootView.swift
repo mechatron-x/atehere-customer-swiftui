@@ -8,34 +8,32 @@
 import SwiftUI
 
 struct RootView: View {
-    
-    @State private var tabSelection: TabBarItem = .home
-    
+    @StateObject var tabSelectionManager = TabSelectionManager()
+    @StateObject var qrViewModel =  QRScanViewModel()
+
     var body: some View {
         ZStack{
-            CustomTabBarContainerView(selection: $tabSelection) {
+            CustomTabBarContainerView(selection: $tabSelectionManager.tabSelection) {
                 HomeView()
-                    .tabBarItem(tab: .home, selection: $tabSelection)
+                    .tabBarItem(tab: .home, selection: $tabSelectionManager.tabSelection)
                 
                 MenuView()
-                    .tabBarItem(tab: .menu, selection: $tabSelection)
+                    .tabBarItem(tab: .menu, selection: $tabSelectionManager.tabSelection)
                 
                 QRScanView()
-                    .tabBarItem(tab: .qrScan, selection: $tabSelection)
-              
+                    .tabBarItem(tab: .qrScan, selection: $tabSelectionManager.tabSelection)
+                
                 InvoiceView()
-                    .tabBarItem(tab: .invoice, selection: $tabSelection)
+                    .tabBarItem(tab: .invoice, selection: $tabSelectionManager.tabSelection)
                 
                 ProfileView()
-                    .tabBarItem(tab: .profile, selection: $tabSelection)
+                    .tabBarItem(tab: .profile, selection: $tabSelectionManager.tabSelection)
             }
         }
+        .navigationBarHidden(true)
+        .environmentObject(tabSelectionManager) // Inject into environment
+        .environmentObject(qrViewModel)
     }
 }
 
 
-struct RootView_Previews: PreviewProvider {
-    static var previews: some View {
-        RootView()
-    }
-}
